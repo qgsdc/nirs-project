@@ -1,12 +1,10 @@
+# project outputs
 data/
-*.mat
-*.asv
+
+# OS / editor
 .DS_Store
-results/
-results_dt_control/
-results_dt_test/
-figures/
-derivatives/
-nirs_files/
-nirs-toolbox/
-scripts/io/
+*.swp
+
+# MATLAB autosave
+*.asv
+*~
