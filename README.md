@@ -5,12 +5,13 @@
 ---
 
 ## 📑 Table of Contents
-- [📘 Overview 概要](#-overview-概要)
-- [🧩 Folder structure ディレクトリ構成](#-folder-structure-ディレクトリ構成)
-- [⚙️ Main QC pipeline 主要QCパイプライン](#-main-qc-pipeline-主要qcパイプライン)
-- [🧠 Analysis flow 解析フロー概要](#-analysis-flow-解析フロー概要)
-- [🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析](#-noise-correction-and-glm-analysis)
-- [🔬 References](#-references)
+- [📘 Overview 概要](#overview)
+- [🧩 Folder structure ディレクトリ構成](#folder-structure)
+- [⚙️ Main QC pipeline 主要QCパイプライン](#main-qc-pipeline)
+- [🚀 Quickstart](#quickstart)
+- [🧠 Analysis flow 解析フロー概要](#analysis-flow)
+- [🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析](#noise-glm)
+- [🔬 References](#references)
 
 ---
 
