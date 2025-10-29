@@ -7,6 +7,7 @@
 ## 📘 Overview 概要
 このリポジトリは、**NeU社 HOT-2000 / Astem社 Hb133** を用いた  
 fNIRS信号と心拍変動（HRV）データの解析をMATLAB上で自動化するプロジェクトです。  
+
 主な目的は、創造性課題中の**前頭前野活動（HbT/HbO/HbR）**および  
 **自律神経反応（推定脈拍・HRV指標）**を統合的に解析することです。
 
@@ -33,22 +34,22 @@ nirs-project/
 
 ---
 
+
 ## ⚙️ Main QC pipeline 主要QCパイプライン
 
-### 1️⃣ 個別セッションQC
-```matlab
+% 1️⃣ 個別セッションQC
 run_qc_group("data/group_a");
 run_qc_group("data/group_d");
 
-2️⃣ ノイズ分類（自動）
+% 2️⃣ ノイズ分類（自動）
 qc_classify_noise("data/group_a/QC_hot2000_metrics.csv");
 qc_classify_noise("data/group_d/QC_hot2000_metrics.csv");
 
-3️⃣ 外れ値除去とフィルタ済み保存
+% 3️⃣ 外れ値除去とフィルタ済み保存
 qc_filter_keep_normal_signal("data/group_a/QC_hot2000_metrics_classified.csv");
 qc_filter_keep_normal_signal("data/group_d/QC_hot2000_metrics_classified.csv");
 
-4️⃣ 両群統合と統計出力
+% 4️⃣ 両群統合と統計出力
 make_stats_table_merged("data/group_a","data/group_d", ...
     'SaveTxt',true,'SaveCsv',true,'OutName','QC_merged');
 
@@ -62,7 +63,90 @@ make_stats_table_merged("data/group_a","data/group_d", ...
 	7.	GLM estimation → run_glm_each_session.m
 	8.	Summary plots & stats → /reports/
 
-🚀 Next steps
-	•	GLM 解析パートの README セクション追加
-	•	HRV 同期モジュール (sync_hrv_nirs_markers.m) のドキュメント化
-	•	論文用図表テンプレートの統合
+🧩 Noise Correction and GLM Analysis
+
+ノイズ補正とGLM解析
+
+🔷 Overview / 概要
+
+This section describes how noise and superficial artifacts were removed from the HOT-2000 fNIRS signals prior to GLM analysis.
+本節では、GLM解析の前にHOT-2000で取得したfNIRS信号からノイズおよび浅層（頭皮）由来成分を除去する手順を示します。
+
+This pipeline follows the recommendations of Tachtsidis & Scholkmann (2016) and von Lühmann et al. (2020), combining
+band-pass filtering, short-separation regression, and GLM modeling for robust estimation of cortical hemodynamic responses.
+本解析パイプラインは、Tachtsidis & Scholkmann (2016) および von Lühmann ら (2020) の推奨に基づき、
+バンドパスフィルタ処理、ショートセパレーション回帰（SD3−SD1）、GLMモデル化を統合しています。
+
+1️⃣ Band-pass Filtering
+
+Purpose: Remove low-frequency drift and high-frequency physiological noise (e.g., respiration, heartbeat).
+目的： 低周波ドリフトや高周波生理ノイズ（呼吸・心拍など）を除去します。
+•	Filter range: 0.01 – 0.20 Hz
+（多くのfNIRS研究で採用されているタスク関連帯域）
+
+```matlab
+bp = nirs.modules.BandPassFilter();
+bp.highpass = 0.01;
+bp.lowpass  = 0.20;
+raw = bp.run(raw);
+```
+
+###2️⃣ Short-separation Regression (SD3 − SD1)
+
+Purpose: Remove scalp and systemic artifacts using paired short-/long-distance channels.
+目的： 同一部位の1 cmおよび3 cmチャンネルの差分により、頭皮・全身循環由来のノイズを除去します。
+
+[
+HbT_{cortical} = HbT_{SD3} - HbT_{SD1}
+]
+
+This difference approximates cortical hemodynamics while attenuating superficial interference,
+thus implementing short-separation regression without the need for auxiliary sensors.
+この差分は浅層ノイズを抑えつつ皮質由来の血行動態を近似し、外部センサーを用いないショートセパレーション回帰として機能します。
+
+```matlab
+HbT_left  = T.("HbT change(left SD3cm)") - T.("HbT change(left SD1cm)");
+HbT_right = T.("HbT change(right SD3cm)") - T.("HbT change(right SD1cm)");
+```
+
+
+###3️⃣ General Linear Model (GLM)
+
+Purpose: Estimate task-related hemodynamic responses (β-values) using a design matrix of task conditions.
+目的： タスク条件を説明変数とするデザイン行列を用いて、タスク関連β値（脳血流応答）を推定します。
+
+[
+Y = X \beta + \varepsilon
+]
+
+Contrast values such as Task − Control, DT − CT, and Left − Right
+were calculated for statistical comparisons and visualization.
+β値を基に Task − Control、DT − CT、Left − Right のコントラストを算出し、統計比較と可視化を行います。
+
+```matlab
+stats = nirs.modules.GLM().run(preproc);
+export_glm_fit_plot(raw, stats, 'path/to/save_glm_fit.png');
+```
+
+###4️⃣ Summary of Processing Steps
+
+| 🧩 Step | 🧠 Module | ✳️ Description (English) | 📝 内容（日本語） |
+|:--:|:--|:--|:--|
+| **1** | `load_raw_hot2000.m` | Load and structure HOT-2000 CSV files | 生CSVの読み込み・構造化 |
+| **2** | `BandPassFilter` | Apply 0.01–0.20 Hz band-pass filter to remove physiological noise | 0.01–0.20 Hzの帯域通過フィルタで生理ノイズ除去 |
+| **3** | **SD3 − SD1** | Perform short-separation regression to remove superficial (scalp/systemic) artifacts | 浅層（頭皮・全身循環）由来ノイズの除去（ショートセパレーション回帰） |
+| **4** | `GLM` | Estimate β-values for each task condition via General Linear Model | GLMにより各タスク条件のβ値を推定 |
+| **5** | `export_glm_fit_plot.m` | Plot observed vs. fitted hemodynamic responses | 観測波形とGLMフィット波形の比較プロットを出力 |
+| **6** | `make_stats_table_merged.m` | Summarize and export group-level statistics | 群レベル統計のサマリーを出力 |
+
+---
+
+✅ *This sequence provides a reproducible and transparent pipeline from raw HOT-2000 data to GLM-based cortical activation metrics.*  
+✅ *この一連の処理は、生データからGLMベースの皮質活動指標までを再現可能かつ透明性の高い形で導出します。*
+
+---
+
+### 🔬 References
+- **Tachtsidis & Scholkmann (2016).** *Neurophotonics*, 3(3):031405.  
+- **von Lühmann et al. (2020).** *Neurophotonics*, 7(3):035002.  
+- **Zhang et al. (2007).** *NeuroImage*, 34(2):550–559.
