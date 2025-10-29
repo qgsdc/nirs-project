@@ -37,6 +37,7 @@ nirs-project/
 
 ## ⚙️ Main QC pipeline 主要QCパイプライン
 
+```matlab
 % 1️⃣ 個別セッションQC
 run_qc_group("data/group_a");
 run_qc_group("data/group_d");
@@ -52,16 +53,26 @@ qc_filter_keep_normal_signal("data/group_d/QC_hot2000_metrics_classified.csv");
 % 4️⃣ 両群統合と統計出力
 make_stats_table_merged("data/group_a","data/group_d", ...
     'SaveTxt',true,'SaveCsv',true,'OutName','QC_merged');
+```
 
-🧠 Analysis flow 解析フロー概要
-	1.	Load raw HOT-2000 CSV → load_raw_hot2000.m
-	2.	Preprocess (0.01–0.2 Hz BandPass) → BandPassFilter
-	3.	Hampel off / PCA off
-	4.	Compute QC metrics → qc_hot2000_metrics.m
-	5.	Noise classification → qc_classify_noise.m
-	6.	Filter & merge → make_stats_table_merged.m
-	7.	GLM estimation → run_glm_each_session.m
-	8.	Summary plots & stats → /reports/
+### 🧠 Analysis flow 解析フロー概要  
+
+| 🧩 Step | ⚙️ Function | ✳️ Description (English) | 📝 内容（日本語） |
+|:--:|:--|:--|:--|
+| **1** | `load_raw_hot2000.m` | Load raw HOT-2000 CSV files | HOT-2000の生CSVファイルを読み込み |
+| **2** | `BandPassFilter` | Band-pass 0.01–0.20 Hz to remove physiological noise | 0.01–0.20 Hzの帯域通過フィルタで生理ノイズ除去 |
+| **3** | *(Hampel off / PCA off)* | Skip outlier and component removal | 外れ値除去・主成分除去は無効化 |
+| **4** | `qc_hot2000_metrics.m` | Compute QC metrics (signal quality, noise ratio, etc.) | 信号品質・ノイズ比などのQCメトリクスを算出 |
+| **5** | `qc_classify_noise.m` | Classify noise automatically based on QC thresholds | QC閾値に基づき自動ノイズ分類 |
+| **6** | `qc_filter_keep_normal_signal.m` | Remove outliers and keep normal signals only | 外れ値を除去し正常信号のみ保持 |
+| **7** | `make_stats_table_merged.m` | Merge A/D groups and export summary statistics | グループA・Dを統合し統計表を出力 |
+| **8** | `run_glm_each_session.m` | Run GLM analysis for each session | 各セッションに対してGLM解析を実行 |
+| **9** | `/reports/` | Save summary plots and statistical reports | 結果図・統計レポートを保存 |
+
+---
+
+✅ *This end-to-end pipeline ensures reproducibility and transparency from raw HOT-2000 data to GLM-based group statistics.*  
+✅ *この一連のパイプラインにより、生データからGLMベースの群統計までを再現性・透明性高く導出します。*
 
 🧩 Noise Correction and GLM Analysis
 
