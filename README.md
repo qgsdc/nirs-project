@@ -16,6 +16,7 @@
 ---
 
 ## 📘 Overview 概要
+<a id="overview"></a>
 このリポジトリは、**NeU社 HOT-2000 / Astem社 Hb133** を用いた  
 fNIRS信号と心拍変動（HRV）データの解析をMATLAB上で自動化するプロジェクトです。  
 
@@ -25,6 +26,7 @@ fNIRS信号と心拍変動（HRV）データの解析をMATLAB上で自動化す
 ---
 
 ## 🧩 Folder structure ディレクトリ構成
+<a id="folder-structure"></a>
 nirs-project/
 ├── scripts/               # 解析スクリプト類
 │   ├── qc/                # 品質管理（QC）関数
@@ -47,6 +49,7 @@ nirs-project/
 
 
 ## ⚙️ Main QC pipeline 主要QCパイプライン
+<a id="main-qc-pipeline"></a>
 
 ```matlab
 % 1️⃣ 個別セッションQC
@@ -67,6 +70,7 @@ make_stats_table_merged("data/group_a","data/group_d", ...
 ```
 
 ## 🚀 Quickstart
+<a id="quickstart"></a>
 
 1. Add paths in MATLAB:
 ```matlab
@@ -103,7 +107,8 @@ run_glm_each_session("data/group_a/participants");
 run_glm_each_session("data/group_d/participants");
 ```
 
-### 🧠 Analysis flow 解析フロー概要  
+### 🧠 Analysis flow 解析フロー概要
+<a id="analysis-flow"></a>  
 
 | 🧩 Step | ⚙️ Function | ✳️ Description (English) | 📝 内容（日本語） |
 |:--:|:--|:--|:--|
@@ -122,10 +127,9 @@ run_glm_each_session("data/group_d/participants");
 ✅ *This end-to-end pipeline ensures reproducibility and transparency from raw HOT-2000 data to GLM-based group statistics.*  
 ✅ *この一連のパイプラインにより、生データからGLMベースの群統計までを再現性・透明性高く導出します。*
 
-🧩 Noise Correction and GLM Analysis
 
-ノイズ補正とGLM解析
-
+## 🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析
+<a id="noise-glm"></a>
 🔷 Overview / 概要
 
 This section describes how noise and superficial artifacts were removed from the HOT-2000 fNIRS signals prior to GLM analysis.
@@ -205,6 +209,7 @@ export_glm_fit_plot(raw, stats, 'path/to/save_glm_fit.png');
 ---
 
 ### 🔬 References
+<a id="references"></a>
 - **Tachtsidis & Scholkmann (2016).** *Neurophotonics*, 3(3):031405.  
 - **von Lühmann et al. (2020).** *Neurophotonics*, 7(3):035002.  
 - **Zhang et al. (2007).** *NeuroImage*, 34(2):550–559.
