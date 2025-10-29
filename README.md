@@ -17,6 +17,7 @@
 
 ## 📘 Overview 概要
 <a id="overview"></a>
+
 このリポジトリは、**NeU社 HOT-2000 / Astem社 Hb133** を用いた  
 fNIRS信号と心拍変動（HRV）データの解析をMATLAB上で自動化するプロジェクトです。  
 
@@ -27,6 +28,7 @@ fNIRS信号と心拍変動（HRV）データの解析をMATLAB上で自動化す
 
 ## 🧩 Folder structure ディレクトリ構成
 <a id="folder-structure"></a>
+
 nirs-project/
 ├── scripts/               # 解析スクリプト類
 │   ├── qc/                # 品質管理（QC）関数
@@ -130,8 +132,8 @@ run_glm_each_session("data/group_d/participants");
 
 ## 🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析
 <a id="noise-glm"></a>
-🔷 Overview / 概要
 
+🔷 Overview / 概要
 This section describes how noise and superficial artifacts were removed from the HOT-2000 fNIRS signals prior to GLM analysis.
 本節では、GLM解析の前にHOT-2000で取得したfNIRS信号からノイズおよび浅層（頭皮）由来成分を除去する手順を示します。
 
@@ -141,7 +143,6 @@ band-pass filtering, short-separation regression, and GLM modeling for robust es
 バンドパスフィルタ処理、ショートセパレーション回帰（SD3−SD1）、GLMモデル化を統合しています。
 
 1️⃣ Band-pass Filtering
-
 Purpose: Remove low-frequency drift and high-frequency physiological noise (e.g., respiration, heartbeat).
 目的： 低周波ドリフトや高周波生理ノイズ（呼吸・心拍など）を除去します。
 •	Filter range: 0.01 – 0.20 Hz
@@ -155,7 +156,6 @@ raw = bp.run(raw);
 ```
 
 ###2️⃣ Short-separation Regression (SD3 − SD1)
-
 Purpose: Remove scalp and systemic artifacts using paired short-/long-distance channels.
 目的： 同一部位の1 cmおよび3 cmチャンネルの差分により、頭皮・全身循環由来のノイズを除去します。
 
@@ -173,7 +173,6 @@ HbT_right = T.("HbT change(right SD3cm)") - T.("HbT change(right SD1cm)");
 ```
 
 ###3️⃣ General Linear Model (GLM)
-
 Purpose: Estimate task-related hemodynamic responses (β-values) using a design matrix of task conditions.
 目的： タスク条件を説明変数とするデザイン行列を用いて、タスク関連β値（脳血流応答）を推定します。
 
@@ -191,7 +190,6 @@ export_glm_fit_plot(raw, stats, 'path/to/save_glm_fit.png');
 ```
 
 ###4️⃣ Summary of Processing Steps
-
 | 🧩 Step | 🧠 Module | ✳️ Description (English) | 📝 内容（日本語） |
 |:--:|:--|:--|:--|
 | **1** | `load_raw_hot2000.m` | Load and structure HOT-2000 CSV files | 生CSVの読み込み・構造化 |
