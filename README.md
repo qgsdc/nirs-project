@@ -4,6 +4,16 @@
 
 ---
 
+## 📑 Table of Contents
+- [📘 Overview 概要](#-overview-概要)
+- [🧩 Folder structure ディレクトリ構成](#-folder-structure-ディレクトリ構成)
+- [⚙️ Main QC pipeline 主要QCパイプライン](#-main-qc-pipeline-主要qcパイプライン)
+- [🧠 Analysis flow 解析フロー概要](#-analysis-flow-解析フロー概要)
+- [🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析](#-noise-correction-and-glm-analysis)
+- [🔬 References](#-references)
+
+---
+
 ## 📘 Overview 概要
 このリポジトリは、**NeU社 HOT-2000 / Astem社 Hb133** を用いた  
 fNIRS信号と心拍変動（HRV）データの解析をMATLAB上で自動化するプロジェクトです。  
@@ -53,6 +63,43 @@ qc_filter_keep_normal_signal("data/group_d/QC_hot2000_metrics_classified.csv");
 % 4️⃣ 両群統合と統計出力
 make_stats_table_merged("data/group_a","data/group_d", ...
     'SaveTxt',true,'SaveCsv',true,'OutName','QC_merged');
+```
+
+## 🚀 Quickstart
+
+1. Add paths in MATLAB:
+```matlab
+addpath(genpath('scripts'));
+rehash; clear functions;
+```
+
+2.	Run QC for each group:
+```matlab
+run_qc_group("data/group_a");
+run_qc_group("data/group_d");
+```
+
+3.	Classify noise:
+```matlab
+qc_classify_noise("data/group_a/QC_hot2000_metrics.csv");
+qc_classify_noise("data/group_d/QC_hot2000_metrics.csv");
+```
+
+4.	Filter outliers:
+```matlab
+qc_filter_keep_normal_signal("data/group_a/QC_hot2000_metrics_classified.csv");
+qc_filter_keep_normal_signal("data/group_d/QC_hot2000_metrics_classified.csv");
+```
+
+5.	Merge & export stats:
+```matlab
+make_stats_table_merged("data/group_a","data/group_d", ...
+'SaveTxt',true,'SaveCsv',true,'OutName','QC_merged');
+```
+6.	(Optional) GLM per session:
+```matlab
+run_glm_each_session("data/group_a/participants");
+run_glm_each_session("data/group_d/participants");
 ```
 
 ### 🧠 Analysis flow 解析フロー概要  
@@ -119,7 +166,6 @@ thus implementing short-separation regression without the need for auxiliary sen
 HbT_left  = T.("HbT change(left SD3cm)") - T.("HbT change(left SD1cm)");
 HbT_right = T.("HbT change(right SD3cm)") - T.("HbT change(right SD1cm)");
 ```
-
 
 ###3️⃣ General Linear Model (GLM)
 
