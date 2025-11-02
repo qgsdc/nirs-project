@@ -8,6 +8,7 @@
 - [📘 Overview 概要](#overview)
 - [🧩 Folder structure ディレクトリ構成](#folder-structure)
 - [⚙️ Main QC pipeline 主要QCパイプライン](#main-qc-pipeline)
+- [🧠 Quality Control (Z-score Based)](#qc)
 - [🚀 Quickstart](#quickstart)
 - [🧠 Analysis flow 解析フロー概要](#analysis-flow)
 - [🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析](#noise-glm)
@@ -29,26 +30,26 @@ fNIRS信号と心拍変動（HRV）データの解析をMATLAB上で自動化す
 ## 🧩 Folder structure ディレクトリ構成
 <a id="folder-structure"></a>
 
-nirs-project/
-├── scripts/               # 解析スクリプト類
-│   ├── qc/                # 品質管理（QC）関数
-│   ├── io/                # データ入出力補助
-│   ├── pipelines/         # 一括実行パイプライン
-│   ├── plots/             # 可視化ツール
-│   ├── hrv/               # HRV解析・同期
-│   └── utils/             # 共通ユーティリティ
-│
-├── data/ (ignored)        # 実験データ（git管理外）
-│   ├── group_a/           # グループA被験者
-│   ├── group_d/           # グループD被験者
-│   └── merged/            # 両群統合サマリー
-│
-├── reports/               # 出力図・統計レポート
-│
-└── .gitignore             # data/ などを除外
-
----
-
+- nirs-project/
++ ```text
++ nirs-project/
+   ├── scripts/               # 解析スクリプト類
+   │   ├── qc/                # 品質管理（QC）関数
+   │   ├── io/                # データ入出力補助
+   │   ├── pipelines/         # 一括実行パイプライン
+   │   ├── plots/             # 可視化ツール
+   │   ├── hrv/               # HRV解析・同期
+   │   └── utils/             # 共通ユーティリティ
+   │
+   ├── data/ (ignored)        # 実験データ（git管理外）
+   │   ├── group_a/           # グループA被験者
+   │   ├── group_d/           # グループD被験者
+   │   └── merged/            # 両群統合サマリー
+   │
+   ├── reports/               # 出力図・統計レポート
+   │
+   └── .gitignore             # data/ などを除外
++ ```
 
 ## ⚙️ Main QC pipeline 主要QCパイプライン
 <a id="main-qc-pipeline"></a>
@@ -97,17 +98,23 @@ Sessions were flagged if either metric exceeded ±3 SD in group-level Z-scores.
 | **Total** | 228 | 221 | 7 | **3.1 %** |
 
 ### Output Files
-data/
-├── group_a/qc/
-│   ├── QC_hot2000_metrics_classified.csv
-│   ├── QC_hot2000_metrics_withZ.csv
-│   ├── QC_hot2000_metrics_filtered.csv
-│   └── QC_outliers_rows_currentZ.csv
-├── group_d/qc/ (same structure)
-└── merged/
-├── QC_merged_Zthr3_stats_byGroup.csv
-├── QC_merged_Zthr3_stats_byTaskCond.csv
-└── QC_merged_Zthr3_summary.txt
+- data/
++ ```text
++ data/
+ ├── group_a/qc/
+ │   ├── QC_hot2000_metrics_classified.csv
+ │   ├── QC_hot2000_metrics_withZ.csv
+ │   ├── QC_hot2000_metrics_filtered.csv
+ │   └── QC_outliers_rows_currentZ.csv
+ ├── group_d/qc/ (same structure)
+ └── merged/
+-├── QC_merged_Zthr3_stats_byGroup.csv
+-├── QC_merged_Zthr3_stats_byTaskCond.csv
+-└── QC_merged_Zthr3_summary.txt
++   ├── QC_merged_Zthr3_stats_byGroup.csv
++   ├── QC_merged_Zthr3_stats_byTaskCond.csv
++   └── QC_merged_Zthr3_summary.txt
++ ```
 
 ### Interpretation
 - Outlier detection is purely **distributional (±3σ)**, ensuring reproducibility.
