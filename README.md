@@ -30,26 +30,23 @@ fNIRS信号と心拍変動（HRV）データの解析をMATLAB上で自動化す
 ## 🧩 Folder structure ディレクトリ構成
 <a id="folder-structure"></a>
 
-- nirs-project/
-+ ```text
-+ nirs-project/
-   ├── scripts/               # 解析スクリプト類
-   │   ├── qc/                # 品質管理（QC）関数
-   │   ├── io/                # データ入出力補助
-   │   ├── pipelines/         # 一括実行パイプライン
-   │   ├── plots/             # 可視化ツール
-   │   ├── hrv/               # HRV解析・同期
-   │   └── utils/             # 共通ユーティリティ
-   │
-   ├── data/ (ignored)        # 実験データ（git管理外）
-   │   ├── group_a/           # グループA被験者
-   │   ├── group_d/           # グループD被験者
-   │   └── merged/            # 両群統合サマリー
-   │
-   ├── reports/               # 出力図・統計レポート
-   │
-   └── .gitignore             # data/ などを除外
-+ ```
+nirs-project/
+├── scripts/               # 解析スクリプト類
+│   ├── qc/                # 品質管理（QC）関数
+│   ├── io/                # データ入出力補助
+│   ├── pipelines/         # 一括実行パイプライン
+│   ├── plots/             # 可視化ツール
+│   ├── hrv/               # HRV解析・同期
+│   └── utils/             # 共通ユーティリティ
+│
+├── data/ (ignored)        # 実験データ（git管理外）
+│   ├── group_a/           # グループA被験者
+│   ├── group_d/           # グループD被験者
+│   └── merged/            # 両群統合サマリー
+│
+├── reports/               # 出力図・統計レポート
+│
+└── .gitignore             # data/ などを除外
 
 ## ⚙️ Main QC pipeline 主要QCパイプライン
 <a id="main-qc-pipeline"></a>
@@ -77,7 +74,7 @@ make_stats_table_merged("data/group_a","data/group_d", ...
 ### Overview
 To ensure data reliability, a Z-score–based QC step was applied to remove sessions with excessive motion or physiological artifacts.
 
-| Metric | Description | Basis | Threshold (|Z| ≥) | Exclusion Type |
+| Metric | Description | Basis | Threshold (\|Z\| ≥)  | Exclusion Type |
 |:-------|:-------------|:-------|:-------------:|:----------------|
 | **AccelRMS** | Root mean square of accelerometer signals | Motion artifacts (Virtanen et al., *J. Biomed. Opt.*, 2011) | **3.0** | Motion-related outlier |
 | **BandPowerSum** | Total band power (0.01–0.2 Hz) of HbT signal | Physiological noise / abnormal oscillation (Montgomery, 2019 ±3σ rule) | **3.0** | Physiological outlier |
@@ -98,24 +95,18 @@ Sessions were flagged if either metric exceeded ±3 SD in group-level Z-scores.
 | **Total** | 228 | 221 | 7 | **3.1 %** |
 
 ### Output Files
-- data/
-+ ```text
-+ data/
- ├── group_a/qc/
- │   ├── QC_hot2000_metrics_classified.csv
- │   ├── QC_hot2000_metrics_withZ.csv
- │   ├── QC_hot2000_metrics_filtered.csv
- │   └── QC_outliers_rows_currentZ.csv
- ├── group_d/qc/ (same structure)
- └── merged/
--├── QC_merged_Zthr3_stats_byGroup.csv
--├── QC_merged_Zthr3_stats_byTaskCond.csv
--└── QC_merged_Zthr3_summary.txt
-+   ├── QC_merged_Zthr3_stats_byGroup.csv
-+   ├── QC_merged_Zthr3_stats_byTaskCond.csv
-+   └── QC_merged_Zthr3_summary.txt
-+ ```
-
+data/
+├── group_a/qc/
+│   ├── QC_hot2000_metrics_classified.csv
+│   ├── QC_hot2000_metrics_withZ.csv
+│   ├── QC_hot2000_metrics_filtered.csv
+│   └── QC_outliers_rows_currentZ.csv
+├── group_d/qc/            # 同構成
+└── merged/
+    ├── QC_merged_Zthr3_stats_byGroup.csv
+    ├── QC_merged_Zthr3_stats_byTaskCond.csv
+    └── QC_merged_Zthr3_summary.txt
+    
 ### Interpretation
 - Outlier detection is purely **distributional (±3σ)**, ensuring reproducibility.
 - No additional filtering (e.g., wavelet, PCA) is applied—only band-pass (0.01–0.2 Hz).
@@ -196,7 +187,7 @@ band-pass filtering, short-separation regression, and GLM modeling for robust es
 本解析パイプラインは、Tachtsidis & Scholkmann (2016) および von Lühmann ら (2020) の推奨に基づき、
 バンドパスフィルタ処理、ショートセパレーション回帰（SD3−SD1）、GLMモデル化を統合しています。
 
-1️⃣ Band-pass Filtering
+### 1️⃣ Band-pass Filtering
 Purpose: Remove low-frequency drift and high-frequency physiological noise (e.g., respiration, heartbeat).
 目的： 低周波ドリフトや高周波生理ノイズ（呼吸・心拍など）を除去します。
 •	Filter range: 0.01 – 0.20 Hz
@@ -209,7 +200,7 @@ bp.lowpass  = 0.20;
 raw = bp.run(raw);
 ```
 
-###2️⃣ Short-separation Regression (SD3 − SD1)
+### 2️⃣ Short-separation Regression (SD3 − SD1)
 Purpose: Remove scalp and systemic artifacts using paired short-/long-distance channels.
 目的： 同一部位の1 cmおよび3 cmチャンネルの差分により、頭皮・全身循環由来のノイズを除去します。
 
@@ -226,7 +217,7 @@ HbT_left  = T.("HbT change(left SD3cm)") - T.("HbT change(left SD1cm)");
 HbT_right = T.("HbT change(right SD3cm)") - T.("HbT change(right SD1cm)");
 ```
 
-###3️⃣ General Linear Model (GLM)
+### 3️⃣ General Linear Model (GLM)
 Purpose: Estimate task-related hemodynamic responses (β-values) using a design matrix of task conditions.
 目的： タスク条件を説明変数とするデザイン行列を用いて、タスク関連β値（脳血流応答）を推定します。
 
@@ -243,7 +234,7 @@ stats = nirs.modules.GLM().run(preproc);
 export_glm_fit_plot(raw, stats, 'path/to/save_glm_fit.png');
 ```
 
-###4️⃣ Summary of Processing Steps
+### 4️⃣ Summary of Processing Steps
 | 🧩 Step | 🧠 Module | ✳️ Description (English) | 📝 内容（日本語） |
 |:--:|:--|:--|:--|
 | **1** | `load_raw_hot2000.m` | Load and structure HOT-2000 CSV files | 生CSVの読み込み・構造化 |
@@ -264,4 +255,7 @@ export_glm_fit_plot(raw, stats, 'path/to/save_glm_fit.png');
 <a id="references"></a>
 - **Tachtsidis & Scholkmann (2016).** *Neurophotonics*, 3(3):031405.  
 - **von Lühmann et al. (2020).** *Neurophotonics*, 7(3):035002.  
-- **Zhang et al. (2007).** *NeuroImage*, 34(2):550–559.
+- **Zhang et al. (2007).** *NeuroImage*, 34(2):550–559.  
+- **Virtanen et al. (2011).** Accelerometer-based motion artifact removal (ABAMAR). *J. Biomed. Opt.*, 16(8):087005.  
+- **Montgomery, D. C. (2019).** *Introduction to Statistical Quality Control* (8th ed.). Wiley.  
+- **Bergmann et al. (2024).** Artifact management for cerebral NIRS signals: a systematic scoping review. *Bioengineering*, 11(9):933.
