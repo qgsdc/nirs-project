@@ -171,6 +171,148 @@ run_glm_each_session("data/group_d/participants");
 
 ---
 
+## 🧠 Δ / ΔΔ Analysis (Task − Control, DT vs CT)
+<a id="delta-deltadelta"></a>
+
+🔷 Overview / 概要
+
+This section describes the session-level and subject-level Δ (delta) and ΔΔ (delta–delta) analysis
+conducted after QC and preprocessing, focusing on Task − Control contrasts during
+Divergent Thinking (DT) and Convergent Thinking (CT) tasks.
+
+本節では、QCおよび前処理後のデータを用いて実施した
+Δ（ベースライン差）および ΔΔ（Task − Control 差）解析について説明します。
+解析の主眼は、DT課題およびCT課題における前頭前野HbT反応の差分評価です。
+
+⸻
+
+1️⃣ Stimulus reconstruction from Mark column
+
+All stimulus timing information was reconstructed exclusively from the Mark column
+in the original HOT-2000 CSV files.
+	•	rest_start → rest_end → Rest
+	•	task1_start → task1_end → Task1
+	•	task2_start → task2_end → Task2
+	•	Duration was defined strictly as end − start (no manual correction)
+
+This ensured full reproducibility and avoided reliance on pre-existing stimulus objects.
+
+stim = build_stim_from_marks(S.t, S.Mark);
+✅ Only sessions containing Rest, Task1, and Task2 were included.
+❌ Sessions with missing or malformed markers were excluded after manual verification.
+
+⸻
+
+2️⃣ Baseline definition (Rest tail)
+
+Baseline activity was defined as the last 15 seconds of the Rest period immediately preceding each task.
+	•	Purpose: minimize carry-over effects and slow drift
+	•	Applied independently for Task1 and Task2
+
+baselineTailSec = 15;  % Rest末尾15秒
+
+This baseline definition was fixed across all analyses and grounded in prior fNIRS literature.
+
+⸻
+
+3️⃣ Δ (Task − Baseline) computation
+
+For each session and each task:
+
+\Delta HbT = \text{mean(Task)} - \text{mean(Rest}_{\text{tail}})
+
+HbT signals were computed using short-separation regression:
+
+HbT = HbT_{SD3} - HbT_{SD1}
+
+Left and right channels were processed separately, then averaged when required.
+
+⸻
+
+4️⃣ ΔΔ (Test − Control) computation
+
+Within each subject and repetition:
+
+\Delta\Delta HbT = \Delta HbT_{\text{test}} - \Delta HbT_{\text{control}}
+	•	Pairing was performed by:
+	•	subject
+	•	session type (dt / ct)
+	•	repetition number
+	•	task (Task1 / Task2)
+
+This design removes session-specific and individual baseline biases.
+
+⸻
+
+5️⃣ Subject-level aggregation
+
+ΔΔ values were averaged within subject, separately for DT and CT.
+
+Psubj = groupsummary(P, ["subj","sessType"], "mean", "deltadeltaLR");
+
+Resulting output:
+	•	52 subjects × 2 conditions (DT / CT)
+	•	Left/right averaged HbT (LR mean)
+
+Output file:
+
+data/merged/deltadelta_subject_mean.csv
+
+6️⃣ Group-level statistics (DT vs CT)
+
+A paired comparison was conducted between DT and CT ΔΔ values.
+	•	Test: paired t-test
+	•	Effect size: Cohen’s dz
+
+[~,p,~,stats] = ttest(DT, CT);
+dz = mean(DT - CT) / std(DT - CT);
+
+Results (current dataset):
+	•	t(25) = 0.928
+	•	p = 0.362
+	•	Cohen’s dz = 0.182 (small effect)
+
+Group summary statistics were exported as CSV files:
+
+data/merged/group_stats_DT_CT.csv
+data/merged/statistics_summary.csv
+
+7️⃣ Visualization
+
+Subject-averaged ΔΔ values were visualized using bar plots with standard error (SE).
+	•	Comparison: DT vs CT
+	•	Metric: ΔΔ HbT (Test − Control)
+	•	Error bars: SE across subjects
+
+Figures were saved to the reports directory for transparency and reproducibility.
+
+⸻
+
+🔎 Interpretation
+	•	Both DT and CT showed small positive ΔΔ values, indicating weak Task > Control effects.
+	•	No significant difference was observed between DT and CT at the group level.
+	•	Effect sizes were small, consistent with a pilot-scale fNIRS study.
+	•	The ΔΔ framework provides a robust foundation for:
+	•	later inclusion of behavioral creativity scores (DT score)
+	•	multimodal integration with HRV and WAIS indices
+
+⸻
+
+✅ This Δ / ΔΔ analysis constitutes the core hemodynamic outcome of the present fNIRS study.
+✅ The pipeline is fully reproducible from raw HOT-2000 CSV files to subject-level statistics.
+
+⸻
+
+🔧 Recommended README updates
+	•	Table of Contents に追加
+
+- [🧠 Δ / ΔΔ Analysis (Task − Control, DT vs CT)](#delta-deltadelta)
+
+•	run_make_deltas_from_manifest.m を
+Main analysis script として明記してもOK
+
+---
+
 ✅ *This end-to-end pipeline ensures reproducibility and transparency from raw HOT-2000 data to GLM-based group statistics.*  
 ✅ *この一連のパイプラインにより、生データからGLMベースの群統計までを再現性・透明性高く導出します。*
 
@@ -179,14 +321,21 @@ run_glm_each_session("data/group_d/participants");
 <a id="noise-glm"></a>
 
 🔷 Overview / 概要
-This section describes how noise and superficial artifacts were removed from the HOT-2000 fNIRS signals prior to GLM analysis.
-本節では、GLM解析の前にHOT-2000で取得したfNIRS信号からノイズおよび浅層（頭皮）由来成分を除去する手順を示します。
 
-This pipeline follows the recommendations of Tachtsidis & Scholkmann (2016) and von Lühmann et al. (2020), combining
-band-pass filtering, short-separation regression, and GLM modeling for robust estimation of cortical hemodynamic responses.
-本解析パイプラインは、Tachtsidis & Scholkmann (2016) および von Lühmann ら (2020) の推奨に基づき、
-バンドパスフィルタ処理、ショートセパレーション回帰（SD3−SD1）、GLMモデル化を統合しています。
+This Δ / ΔΔ framework was **pre-defined prior to statistical testing**
+to avoid analytical flexibility and ensure reproducibility.
 
+Δ HbT = mean(Task) − mean(Rest_tail)
+
+Note that Δ / ΔΔ analyses were performed on **preprocessed time-series data**
+and are **complementary to, but independent from, GLM-based β estimation**.
+
+This section describes the session-level and subject-level Δ (delta) and ΔΔ (delta–delta) analysis
+conducted after QC and preprocessing, focusing on Task − Control contrasts during
+Divergent Thinking (DT) and Convergent Thinking (CT) tasks.
+
+本節では、QCおよび前処理後のデータを用いて実施した
+Δ（ベースライン差）および ΔΔ（Task − Control 差）解析について説明します。
 ### 1️⃣ Band-pass Filtering
 Purpose: Remove low-frequency drift and high-frequency physiological noise (e.g., respiration, heartbeat).
 目的： 低周波ドリフトや高周波生理ノイズ（呼吸・心拍など）を除去します。
