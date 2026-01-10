@@ -11,6 +11,7 @@
 - [🧠 Quality Control (Z-score Based)](#qc)
 - [🚀 Quickstart](#quickstart)
 - [🧠 Analysis flow 解析フロー概要](#analysis-flow)
+- [🧠 Δ / ΔΔ Analysis (Task − Control, DT vs CT)](#delta-deltadelta)
 - [🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析](#noise-glm)
 - [🔬 References](#references)
 
@@ -176,6 +177,15 @@ run_glm_each_session("data/group_d/participants");
 
 🔷 Overview / 概要
 
+This Δ / ΔΔ framework was **pre-defined prior to statistical testing**
+to avoid analytical flexibility and ensure reproducibility.
+
+ΔHbT = mean(Task) − mean(Rest_tail)
+ΔΔHbT = ΔHbT_test − ΔHbT_control
+
+Note that Δ / ΔΔ analyses were performed on **preprocessed time-series data**
+and are **complementary to, but independent from, GLM-based β estimation**.
+
 This section describes the session-level and subject-level Δ (delta) and ΔΔ (delta–delta) analysis
 conducted after QC and preprocessing, focusing on Task − Control contrasts during
 Divergent Thinking (DT) and Convergent Thinking (CT) tasks.
@@ -183,7 +193,6 @@ Divergent Thinking (DT) and Convergent Thinking (CT) tasks.
 本節では、QCおよび前処理後のデータを用いて実施した
 Δ（ベースライン差）および ΔΔ（Task − Control 差）解析について説明します。
 解析の主眼は、DT課題およびCT課題における前頭前野HbT反応の差分評価です。
-
 ⸻
 
 1️⃣ Stimulus reconstruction from Mark column
@@ -303,9 +312,6 @@ Figures were saved to the reports directory for transparency and reproducibility
 
 ⸻
 
-🔧 Recommended README updates
-	•	Table of Contents に追加
-
 - [🧠 Δ / ΔΔ Analysis (Task − Control, DT vs CT)](#delta-deltadelta)
 
 •	run_make_deltas_from_manifest.m を
@@ -316,26 +322,13 @@ Main analysis script として明記してもOK
 ✅ *This end-to-end pipeline ensures reproducibility and transparency from raw HOT-2000 data to GLM-based group statistics.*  
 ✅ *この一連のパイプラインにより、生データからGLMベースの群統計までを再現性・透明性高く導出します。*
 
-
 ## 🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析
 <a id="noise-glm"></a>
 
 🔷 Overview / 概要
+This section describes how noise and superficial artifacts were removed from the HOT-2000 fNIRS signals prior to GLM analysis.
+本節では、GLM解析の前にHOT-2000で取得したfNIRS信号からノイズおよび浅層（頭皮）由来成分を除去する手順を示します。
 
-This Δ / ΔΔ framework was **pre-defined prior to statistical testing**
-to avoid analytical flexibility and ensure reproducibility.
-
-Δ HbT = mean(Task) − mean(Rest_tail)
-
-Note that Δ / ΔΔ analyses were performed on **preprocessed time-series data**
-and are **complementary to, but independent from, GLM-based β estimation**.
-
-This section describes the session-level and subject-level Δ (delta) and ΔΔ (delta–delta) analysis
-conducted after QC and preprocessing, focusing on Task − Control contrasts during
-Divergent Thinking (DT) and Convergent Thinking (CT) tasks.
-
-本節では、QCおよび前処理後のデータを用いて実施した
-Δ（ベースライン差）および ΔΔ（Task − Control 差）解析について説明します。
 ### 1️⃣ Band-pass Filtering
 Purpose: Remove low-frequency drift and high-frequency physiological noise (e.g., respiration, heartbeat).
 目的： 低周波ドリフトや高周波生理ノイズ（呼吸・心拍など）を除去します。
