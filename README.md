@@ -180,7 +180,7 @@ run_glm_each_session("data/group_d/participants");
 This Δ / ΔΔ framework was **pre-defined prior to statistical testing**
 to avoid analytical flexibility and ensure reproducibility.
 
-ΔHbT = mean(Task) − mean(Rest_tail)
+ΔHbT = mean(Task) − mean(Rest_tail)  
 ΔΔHbT = ΔHbT_test − ΔHbT_control
 
 Note that Δ / ΔΔ analyses were performed on **preprocessed time-series data**
@@ -193,24 +193,26 @@ Divergent Thinking (DT) and Convergent Thinking (CT) tasks.
 本節では、QCおよび前処理後のデータを用いて実施した
 Δ（ベースライン差）および ΔΔ（Task − Control 差）解析について説明します。
 解析の主眼は、DT課題およびCT課題における前頭前野HbT反応の差分評価です。
-⸻
 
-1️⃣ Stimulus reconstruction from Mark column
+---
+
+### 1️⃣ Stimulus reconstruction from Mark column
 
 All stimulus timing information was reconstructed exclusively from the Mark column
 in the original HOT-2000 CSV files.
-	•	rest_start → rest_end → Rest
-	•	task1_start → task1_end → Task1
-	•	task2_start → task2_end → Task2
-	•	Duration was defined strictly as end − start (no manual correction)
+
+- rest_start → rest_end → Rest  
+- task1_start → task1_end → Task1  
+- task2_start → task2_end → Task2  
+- Duration was defined strictly as end − start (no manual correction)
 
 This ensured full reproducibility and avoided reliance on pre-existing stimulus objects.
 
+```matlab
 stim = build_stim_from_marks(S.t, S.Mark);
+
 ✅ Only sessions containing Rest, Task1, and Task2 were included.
 ❌ Sessions with missing or malformed markers were excluded after manual verification.
-
-⸻
 
 2️⃣ Baseline definition (Rest tail)
 
@@ -218,21 +220,19 @@ Baseline activity was defined as the last 15 seconds of the Rest period immediat
 	•	Purpose: minimize carry-over effects and slow drift
 	•	Applied independently for Task1 and Task2
 
+
+```matlab
 baselineTailSec = 15;  % Rest末尾15秒
-
-This baseline definition was fixed across all analyses and grounded in prior fNIRS literature.
-
-⸻
 
 3️⃣ Δ (Task − Baseline) computation
 
 For each session and each task:
 
-\Delta HbT = \text{mean(Task)} - \text{mean(Rest}_{\text{tail}})
+ΔHbT = mean(Task) − mean(Rest_tail)
 
 HbT signals were computed using short-separation regression:
 
-HbT = HbT_{SD3} - HbT_{SD1}
+HbT = HbT_SD3 − HbT_SD1
 
 Left and right channels were processed separately, then averaged when required.
 
@@ -242,8 +242,9 @@ Left and right channels were processed separately, then averaged when required.
 
 Within each subject and repetition:
 
-\Delta\Delta HbT = \Delta HbT_{\text{test}} - \Delta HbT_{\text{control}}
-	•	Pairing was performed by:
+ΔΔHbT = ΔHbT_test − ΔHbT_control
+
+Pairing was performed by:
 	•	subject
 	•	session type (dt / ct)
 	•	repetition number
@@ -257,15 +258,14 @@ This design removes session-specific and individual baseline biases.
 
 ΔΔ values were averaged within subject, separately for DT and CT.
 
+
+```matlab
 Psubj = groupsummary(P, ["subj","sessType"], "mean", "deltadeltaLR");
 
-Resulting output:
-	•	52 subjects × 2 conditions (DT / CT)
-	•	Left/right averaged HbT (LR mean)
-
 Output file:
+	•	data/merged/deltadelta_subject_mean.csv
 
-data/merged/deltadelta_subject_mean.csv
+⸻
 
 6️⃣ Group-level statistics (DT vs CT)
 
@@ -273,6 +273,21 @@ A paired comparison was conducted between DT and CT ΔΔ values.
 	•	Test: paired t-test
 	•	Effect size: Cohen’s dz
 
+```matlab
+Psubj = groupsummary(P, ["subj","sessType"], "mean", "deltadeltaLR");
+
+Output file:
+	•	data/merged/deltadelta_subject_mean.csv
+
+⸻
+
+6️⃣ Group-level statistics (DT vs CT)
+
+A paired comparison was conducted between DT and CT ΔΔ values.
+	•	Test: paired t-test
+	•	Effect size: Cohen’s dz
+
+```matlab
 [~,p,~,stats] = ttest(DT, CT);
 dz = mean(DT - CT) / std(DT - CT);
 
@@ -281,10 +296,11 @@ Results (current dataset):
 	•	p = 0.362
 	•	Cohen’s dz = 0.182 (small effect)
 
-Group summary statistics were exported as CSV files:
+Exported outputs:
+	•	data/merged/group_stats_DT_CT.csv
+	•	data/merged/statistics_summary.csv
 
-data/merged/group_stats_DT_CT.csv
-data/merged/statistics_summary.csv
+⸻
 
 7️⃣ Visualization
 
