@@ -344,53 +344,111 @@ Main analysis script として明記してもOK
 
 ### Overview
 This analysis examines how frontal hemodynamic responses change
-as task difficulty increases within the Convergent Thinking (CT) task.
+as task difficulty increases *within* the Convergent Thinking (CT) task.
+The aim is to test whether ΔΔHbT captures **cognitive load progression**
+rather than overall task accuracy.
+
+---
 
 ### Task design and difficulty manipulation
 - CT items were ordered based on prior normative accuracy.
-- Trials 1–3: relatively easier
-- Trials 4–6: relatively harder
+- **Trials 1–3**: relatively easier  
+- **Trials 4–6**: relatively harder  
+
+Note:  
+The original dataset (`paired_deltadelta_312.csv`) contained only `rep = 1..3`
+(two CT blocks × three repetitions).  
+A new index **`rep6` (1–6)** was constructed by ordering Task1/Task2
+across repetitions to enable within-task difficulty analysis.
+
+---
 
 ### Step D-1: Main analysis (difficulty effect)
-- Comparison: Trials 1–3 vs 4–6 (rep6)
+**Question:**  
+Does frontal ΔΔHbT increase from early (easy) to late (hard) CT trials?
+
+- Comparison: **Trials 1–3 vs Trials 4–6** (rep6)
 - Test: paired t-test
 - Result:
-  - t(25)=1.857
-  - p=0.075
-  - Cohen’s dz=0.364
+  - *t*(25) = 1.857  
+  - *p* = 0.075  
+  - Cohen’s *dz* = 0.364  
 
-•	“trend-level” + “effect size suggests…” + “requires replication”
+**Interpretation (reporting template):**
+- Trend-level effect (*p* ≈ 0.075) with a **medium effect size**.
+- Effect size suggests a meaningful within-task difficulty modulation.
+- Requires replication / confirmation in a larger sample.
 
-Note: `rep6` is a within-subject trial index (1–6) created by ordering Task1/Task2 within rep=1..3.
+This result is suitable as **exploratory evidence** in a pilot fNIRS study.
 
-Interpretation:
-- Medium effect size with trend-level significance
-- Suitable as exploratory evidence in a pilot study
+---
 
 ### Step D-2: Behavioral performance × brain response
-- CT score × ΔΔHbT (second − first)
-- Weak correlations
-- Suggests ΔΔHbT reflects cognitive load progression rather than accuracy
+**Question:**  
+Is ΔΔHbT driven by task accuracy or by increasing cognitive load?
+
+- Analysis: **CT score × ΔΔHbT (late − early)**
+- Result: weak correlations
+
+**Interpretation:**
+- ΔΔHbT is weakly related to behavioral accuracy.
+- Suggests ΔΔHbT reflects **cognitive effort progression**
+  rather than performance level per se.
+
+---
 
 ### Step D-3: Laterality analysis
-- Left and right channels analyzed separately
-- No strong lateralization effects observed
-- Confirms conservative interpretation
+**Question:**  
+Is the difficulty-related effect lateralized?
+
+- Left and right channels analyzed separately.
+- Metric: ΔΔHbT difference (Trials 4–6 − Trials 1–3)
+
+**Result:**
+- No strong lateralization effects observed.
+
+**Interpretation:**
+- Confirms a conservative interpretation.
+- Avoids over-claiming hemispheric specialization in a pilot dataset.
+
+---
 
 ### Reproducibility
 All analyses were executed using:
-- `run_stepD_CT_rep6.m`
-- Input: `paired_deltadelta_312_rep6.csv`
+
+- Script: `scripts/analysis/run_stepD_CT_rep6.m`
+- Input:
+  - `data/merged/paired_deltadelta_312_rep6.csv`
+  - Behavioral data merged at subject level
+- Statistics:
+  - paired t-tests
+  - Pearson correlations
+  - Effect size: Cohen’s *dz*
+
+---
 
 ### Outputs
-- `data/merged/figures/stepD1_CT_rep6_trials1to3_vs_4to6_deltadeltaLR.png`
-- `data/merged/stepD1_CT_rep6_trials1to3_vs_4to6_subject.csv`
-- `data/merged/stepD1_CT_rep6_trials1to3_vs_4to6_stats.csv`
-- `data/merged/figures/stepD2_CT_CTscore_x_deltadeltaLR_rep6.png`
-- `data/merged/stepD2_CT_CTscore_x_deltadeltaLR_rep6_stats.csv`
-- `data/merged/figures/stepD3_CT_CTscore_x_deltadeltaL_diff_rep6.png`
-- `data/merged/figures/stepD3_CT_CTscore_x_deltadeltaR_diff_rep6.png`
-- `data/merged/stepD3_CT_CTscore_x_deltadeltaL_R_rep6_stats.csv`
+Generated files (automatically saved):
+
+- Figures:
+  - `data/merged/figures/stepD1_CT_rep6_trials1to3_vs_4to6_deltadeltaLR.png`
+  - `data/merged/figures/stepD2_CT_CTscore_x_deltadeltaLR_rep6.png`
+  - `data/merged/figures/stepD3_CT_CTscore_x_deltadeltaL_diff_rep6.png`
+  - `data/merged/figures/stepD3_CT_CTscore_x_deltadeltaR_diff_rep6.png`
+
+- Tables:
+  - `data/merged/stepD1_CT_rep6_trials1to3_vs_4to6_subject.csv`
+  - `data/merged/stepD1_CT_rep6_trials1to3_vs_4to6_stats.csv`
+  - `data/merged/stepD2_CT_CTscore_x_deltadeltaLR_rep6_stats.csv`
+  - `data/merged/stepD3_CT_CTscore_x_deltadeltaL_R_rep6_stats.csv`
+
+---
+
+### Summary
+- Step D provides **within-task evidence** for difficulty-related frontal activation in CT.
+- Effects are moderate and trend-level, appropriate for a pilot study.
+- The analysis clarifies that ΔΔHbT primarily reflects **load dynamics**, not accuracy.
+- This section complements the main DT/CT contrast without inflating claims.
 
 ## 🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析
 <a id="noise-glm"></a>
