@@ -1,6 +1,6 @@
 # nirs-project  
 **MATLAB-based fNIRS + HRV analysis pipeline (HOT-2000 / Hb133 / Check My Heart)**  
-*Ver. 2025-10-19 – Kei Saruwatari*
+*Ver. 2026-1-11 – Kei Saruwatari*
 
 ---
 
@@ -12,6 +12,7 @@
 - [🚀 Quickstart](#quickstart)
 - [🧠 Analysis flow 解析フロー概要](#analysis-flow)
 - [🧠 Δ / ΔΔ Analysis (Task − Control, DT vs CT)](#delta-deltadelta)
+- [🧠 Step D: Within-task Difficulty Manipulation (CT)](#step-d-ct)
 - [🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析](#noise-glm)
 - [🔬 References](#references)
 
@@ -338,6 +339,59 @@ Main analysis script として明記してもOK
 ✅ *This end-to-end pipeline ensures reproducibility and transparency from raw HOT-2000 data to GLM-based group statistics.*  
 ✅ *この一連のパイプラインにより、生データからGLMベースの群統計までを再現性・透明性高く導出します。*
 
+## 🧠 Step D: Within-task Difficulty Manipulation (CT)
+<a id="step-d-ct"></a>
+
+### Overview
+This analysis examines how frontal hemodynamic responses change
+as task difficulty increases within the Convergent Thinking (CT) task.
+
+### Task design and difficulty manipulation
+- CT items were ordered based on prior normative accuracy.
+- Trials 1–3: relatively easier
+- Trials 4–6: relatively harder
+
+### Step D-1: Main analysis (difficulty effect)
+- Comparison: Trials 1–3 vs 4–6 (rep6)
+- Test: paired t-test
+- Result:
+  - t(25)=1.857
+  - p=0.075
+  - Cohen’s dz=0.364
+
+•	“trend-level” + “effect size suggests…” + “requires replication”
+
+Note: `rep6` is a within-subject trial index (1–6) created by ordering Task1/Task2 within rep=1..3.
+
+Interpretation:
+- Medium effect size with trend-level significance
+- Suitable as exploratory evidence in a pilot study
+
+### Step D-2: Behavioral performance × brain response
+- CT score × ΔΔHbT (second − first)
+- Weak correlations
+- Suggests ΔΔHbT reflects cognitive load progression rather than accuracy
+
+### Step D-3: Laterality analysis
+- Left and right channels analyzed separately
+- No strong lateralization effects observed
+- Confirms conservative interpretation
+
+### Reproducibility
+All analyses were executed using:
+- `run_stepD_CT_rep6.m`
+- Input: `paired_deltadelta_312_rep6.csv`
+
+### Outputs
+- `data/merged/figures/stepD1_CT_rep6_trials1to3_vs_4to6_deltadeltaLR.png`
+- `data/merged/stepD1_CT_rep6_trials1to3_vs_4to6_subject.csv`
+- `data/merged/stepD1_CT_rep6_trials1to3_vs_4to6_stats.csv`
+- `data/merged/figures/stepD2_CT_CTscore_x_deltadeltaLR_rep6.png`
+- `data/merged/stepD2_CT_CTscore_x_deltadeltaLR_rep6_stats.csv`
+- `data/merged/figures/stepD3_CT_CTscore_x_deltadeltaL_diff_rep6.png`
+- `data/merged/figures/stepD3_CT_CTscore_x_deltadeltaR_diff_rep6.png`
+- `data/merged/stepD3_CT_CTscore_x_deltadeltaL_R_rep6_stats.csv`
+
 ## 🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析
 <a id="noise-glm"></a>
 
@@ -356,7 +410,6 @@ bp = nirs.modules.BandPassFilter();
 bp.highpass = 0.01;
 bp.lowpass  = 0.20;
 raw = bp.run(raw);
-```
 
 ### 2️⃣ Short-separation Regression (SD3 − SD1)
 Purpose: Remove scalp and systemic artifacts using paired short-/long-distance channels.
@@ -390,7 +443,6 @@ were calculated for statistical comparisons and visualization.
 ```matlab
 stats = nirs.modules.GLM().run(preproc);
 export_glm_fit_plot(raw, stats, 'path/to/save_glm_fit.png');
-```
 
 ### 4️⃣ Summary of Processing Steps
 | 🧩 Step | 🧠 Module | ✳️ Description (English) | 📝 内容（日本語） |
