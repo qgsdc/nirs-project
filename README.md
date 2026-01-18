@@ -1,63 +1,47 @@
-# nirs-project  
+# nirs-project
 **MATLAB-based fNIRS + HRV analysis pipeline (HOT-2000 / Hb133 / Check My Heart)**  
-*Ver. 2026-1-11 – Kei Saruwatari*
+**Version:** 2026-01-18  
+**Author:** Kei Saruwatari
 
 ---
 
-## 📑 Table of Contents
-- [📘 Overview 概要](#overview)
-- [🧩 Folder structure ディレクトリ構成](#folder-structure)
-- [⚙️ Main QC pipeline 主要QCパイプライン](#main-qc-pipeline)
-- [🧠 Quality Control (Z-score Based)](#qc)
-- [🚀 Quickstart](#quickstart)
-- [🧠 Analysis flow 解析フロー概要](#analysis-flow)
-- [🧠 Δ / ΔΔ Analysis (Task − Control, DT vs CT)](#delta-deltadelta)
-- [🧠 Step D: Within-task Difficulty Manipulation (CT)](#step-d-ct)
-- [🧩 Noise Correction and GLM Analysis｜ノイズ補正とGLM解析](#noise-glm)
-- [🔬 References](#references)
+## Overview / 概要
+本リポジトリは、創造性課題（DT/CT）中に取得した **fNIRS（前頭前野）** と **自律神経（HRV）** データを、
+MATLABで **再現可能** に解析するためのパイプラインです。
+
+対象機器：
+- **NeU HOT-2000**（HbT、SD1/SD3）
+- **Astem Hb133**（HbO/HbR/HbT）
+- **Check My Heart**（心拍・HRV）
+
+設計思想：
+- QCは **透明で再現可能**（Zスコアに基づく）
+- 前処理は **最小限**（原則 band-pass のみ）
+- 主要アウトカムは **Δ / ΔΔ（Task−Control差）**
+- 解析の自由度を抑えるため、主要解析と探索的解析を明確に区別する
 
 ---
 
-## 📘 Overview 概要
-<a id="overview"></a>
-
-This repository provides a fully reproducible MATLAB pipeline for analyzing
-functional near-infrared spectroscopy (fNIRS) and autonomic nervous system (HRV) data
-collected during creative thinking tasks.
-
-The primary focus is on prefrontal hemodynamic responses measured using:
-	•	NeU HOT-2000 (HbT-only, SD1/SD3)
-	•	Astem Hb133 (HbO/HbR/HbT)
-	•	Check My Heart (pulse rate / HRV indices)
-
-The pipeline emphasizes:
-	•	transparent quality control (QC)
-	•	minimal preprocessing assumptions
-	•	reproducible Δ / ΔΔ task-contrast analyses
-	•	conservative statistical interpretation suitable for pilot studies
-
----
-
-## 🧩 Folder structure ディレクトリ構成
+## Folder structure / ディレクトリ構成
 <a id="folder-structure"></a>
 
 nirs-project/
-├── scripts/
-│   ├── analysis/          # Statistical analyses (ΔΔ, t-tests, plots)
-│   ├── qc/                # Quality control metrics and filtering
-│   ├── io/                # Data loading and stimulus reconstruction
-│   ├── pipelines/         # Batch execution scripts
-│   ├── plots/             # Visualization utilities
-│   ├── hrv/               # HRV processing and synchronization
-│   └── utils/             # Shared helper functions
+├── scripts/                 # 解析スクリプト
+│   ├── analysis/            # 統計・図（DT/CT, Step Dなど）
+│   ├── qc/                  # QCメトリクス算出と除外
+│   ├── io/                  # 読み込み・stim再構築
+│   ├── pipelines/           # バッチ実行
+│   ├── plots/               # 図の共通関数
+│   ├── hrv/                 # HRV解析・同期
+│   └── utils/               # 汎用ユーティリティ
 │
-├── data/                  # Experimental data (ignored by git)
+├── data/ (ignored)          # 実験データ（個人情報保護のためgit管理外）
 │   ├── group_a/
 │   ├── group_d/
 │   └── merged/
+│       └── figures/         # 解析図・統計CSV（スライド用）
 │
-├── reports/               # Exported figures and statistics
-├── figures/               # Presentation-ready figures
+├── reports/                 # レポート出力（QCなど）
 └── .gitignore
 
 ⚠️ data/ is excluded from version control for privacy reasons.
@@ -66,12 +50,54 @@ nirs-project/
 ## 🚀 Quickstart
 <a id="quickstart"></a>
 
+---
+
 ```matlab
 addpath(genpath('scripts'));
 rehash; clear functions;
 ```
+## 🧠 Analysis Flow
 
-Quality Control
+| Step | Script / Module | Description (English) | 内容（日本語） |
+|:---:|:----------------|:----------------------|:---------------|
+| **1** | `load_raw_hot2000.m` | Load and structure raw HOT-2000 CSV files | HOT-2000の生CSVを読み込み、時系列構造を作成 |
+| **2** | `BandPassFilter` | Apply band-pass filter (0.01–0.20 Hz) | 0.01–0.20 Hz 帯域通過フィルタでドリフト・生理ノイズ除去 |
+| **3** | *(Hampel / PCA off)* | Skip aggressive denoising | 外れ値除去・PCAは実施せず（最小前処理） |
+| **4** | `qc_hot2000_metrics.m` | Compute QC metrics | 加速度RMS・Band power等のQC指標を算出 |
+| **5** | `qc_classify_noise.m` | Automatic noise classification | Z-score（±3σ）に基づくノイズ自動分類 |
+| **6** | `qc_filter_keep_normal_signal.m` | Remove outlier sessions | 外れ値セッションを除外 |
+| **7** | `make_stats_table_merged.m` | Merge groups and export QC stats | グループA/D統合とQC統計出力 |
+| **8** | `build_stim_from_marks.m` | Reconstruct stimuli from Mark column | Mark列から刺激タイミングを再構成 |
+| **9** | `run_make_deltas_from_manifest.m` | Compute Δ and ΔΔ values | ΔHbT・ΔΔHbTを算出（Task−Control） |
+| **10** | `run_DTvsCT_repMean_stats.m` | DT vs CT comparison | DTとCTのΔΔHbTを被験者内比較 |
+| **11** | `run_onesample_deltadelta_vs0.m` | One-sample test vs baseline | ΔΔHbTがbaselineから変化したか検定 |
+| **12** | `run_DTvsCT_LeftRight_barSE_stats.m` | Exploratory laterality analysis | 左右別（Fp1/Fp2）の探索的比較 |
+| **13** | `run_stepD1_CT_rep6_trials1to3_vs_4to6.m` | CT difficulty (early vs late) | CT前半 vs 後半（難易度操作）の比較 |
+| **14** | `run_stepD2_CTscore_x_deltadelta_scatter.m` | CT score × ΔΔHbT correlation | CT成績とΔΔHbTの探索的相関解析 |
+| **15** | `/reports/` | Export figures and statistics | 図・統計結果を自動保存 |
+
+Quality Control (Z-score Based)
+
+QCは Zスコア（±3） により外れ値セッションを除外する。
+
+対象メトリクス：
+	•	AccelRMS：体動（Virtanen et al., 2011）
+	•	BandPowerSum（0.01–0.2 Hz）：異常振動（Montgomery, 2019）
+
+run_qc_group("data/group_a");
+run_qc_group("data/group_d");
+
+qc_classify_noise("data/group_a/QC_hot2000_metrics.csv");
+qc_classify_noise("data/group_d/QC_hot2000_metrics.csv");
+
+qc_filter_keep_normal_signal("data/group_a/QC_hot2000_metrics_classified.csv");
+qc_filter_keep_normal_signal("data/group_d/QC_hot2000_metrics_classified.csv");
+
+make_stats_table_merged("data/group_a","data/group_d", ...
+  'SaveTxt',true,'SaveCsv',true,'OutName','QC_merged');
+
+  
+実行：
 ```matlab
 run_qc_group("data/group_a");
 run_qc_group("data/group_d");
@@ -83,8 +109,40 @@ qc_filter_keep_normal_signal("data/group_a/QC_hot2000_metrics_classified.csv");
 qc_filter_keep_normal_signal("data/group_d/QC_hot2000_metrics_classified.csv");
 
 make_stats_table_merged("data/group_a","data/group_d", ...
-    'SaveTxt',true,'SaveCsv',true,'OutName','QC_merged');
+  'SaveTxt',true,'SaveCsv',true,'OutName','QC_merged');
 ```
+
+Core outcome: Δ / ΔΔ Analysis (Task − Control, DT vs CT)
+
+Definitions
+
+Baseline（各Task直前のRest末尾15秒）：
+	•	目的：carry-over と slow drift を最小化
+
+定義：
+	•	ΔHbT = mean(Task) − mean(Rest_tail15s)
+	•	ΔΔHbT = ΔHbT_test − ΔHbT_control
+	•	HOT-2000 HbT：HbT = SD3 − SD1（左右別→必要に応じて平均）
+
+Subject-level aggregation（rep平均）：
+	•	ΔDT_subj = mean(ΔΔHbT_DT across repetitions)
+	•	ΔCT_subj = mean(ΔΔHbT_CT across repetitions)
+
+出力：
+	•	data/merged/deltadelta_subject_mean.csv
+
+⸻
+
+Group-level: DT vs CT（rep平均 → paired t-test）
+
+実行：
+```matlab
+out = run_DTvsCT_repMean_stats_boxplot( ...
+  "PairedCsv","data/merged/paired_deltadelta_312.csv", ...
+  "OutDir","data/merged/figures", ...
+  "ShowPoints",true);
+```
+
 
 ## 🧠 Analysis Flow
 
