@@ -143,154 +143,119 @@ out = run_DTvsCT_repMean_stats_boxplot( ...
   "ShowPoints",true);
 ```
 
-
-## 🧠 Analysis Flow
-
-| Step | Script / Module | Description (English) | 内容（日本語） |
-|:--:|:--|:--|:--|
-| **1** | `load_raw_hot2000.m` | Load HOT-2000 CSV files and structure time series | HOT-2000 の生 CSV ファイルを読み込み、時系列データとして構造化 |
-| **2** | `BandPassFilter` | Apply band-pass filter (0.01–0.20 Hz) | 0.01–0.20 Hz の帯域通過フィルタを適用 |
-| **3** | *(Hampel / PCA off)* | Skip aggressive denoising | 外れ値除去・PCA などの強い前処理は実施しない |
-| **4** | `qc_hot2000_metrics.m` | Compute QC metrics | 信号品質・ノイズ指標などの QC メトリクスを算出 |
-| **5** | `qc_classify_noise.m` | Automatic noise classification | QC 閾値に基づく自動ノイズ分類 |
-| **6** | `qc_filter_keep_normal_signal.m` | Exclude outlier sessions | 外れ値セッションを除外し、正常信号のみ保持 |
-| **7** | `run_make_deltas_from_manifest.m` | Compute Δ and ΔΔ values | Δ（Task−Baseline）および ΔΔ（Test−Control）を算出 |
-| **8** | Statistical analysis scripts | Group-level statistical inference | 被験者内・群レベル統計解析（t検定・効果量） |
-| **9** | `/reports/` | Export figures and statistics | 図表・統計結果を自動保存 |
-
-
-## 🧠 Δ / ΔΔ Analysis (Core Outcome)
-Definitions
-
-Baseline was defined as the last 15 seconds of the Rest period immediately preceding each task,
-to minimize carry-over effects and slow drift.
-
-ΔHbT  = mean(Task) − mean(Rest_tail_15s)
-ΔΔHbT = ΔHbT_test − ΔHbT_control
-
-HbT was computed using short-separation regression:
-
-HbT = HbT_SD3 − HbT_SD1
-
-Left and right channels were processed separately and averaged when required.
-
-Subject-level aggregation
-
-For each subject:
-
-ΔDT_subj = mean(ΔΔHbT_DT across repetitions)
-ΔCT_subj = mean(ΔΔHbT_CT across repetitions)
-
-Output:
-
-data/merged/deltadelta_subject_mean.csv
-
-Group-level comparison (DT vs CT)
-	•	Test: paired t-test
-	•	Effect size: Cohen’s dz
-
-Results:
-	•	t(25) = 0.928
-	•	p = 0.362
-	•	dz = 0.182 (small effect)
-
-Scripts:
-
-```matlab
-run_DTvsCT_repMean_stats.m
-run_DTvsCT_repMean_stats_boxplot.m
-```
-
-Outputs:
-
-data/merged/group_stats_DT_CT.csv
-data/merged/figures/DT_vs_CT_repMean.png
-
-One-sample test vs baseline (ΔΔHbT vs 0)
-
-To verify whether Task–Control contrasts deviated from baseline:
-	•	Test: one-sample t-test
-	•	Null hypothesis: mean ΔΔHbT = 0
-
-Results:
-	•	DT: t(25)=0.499, p=0.622, dz=0.098
-	•	CT: t(25)=-0.413, p=0.683, dz=-0.081
-
-Scripts:
-
-```matlab
-run_onesample_deltadelta_vs0.m
-run_onesample_deltadelta_vs0_barSE.m
-```
-
-Outputs:
-
-data/merged/onesample_deltadelta_vs0_stats.csv
-data/merged/figures/onesample_deltadelta_vs0.png
-
-## 🧠 Exploratory Laterality Analysis (Left / Right)
-
-Laterality analyses were conducted exploratorily
-and were not part of the primary hypothesis.
-	•	Comparison: DT vs CT within Left (Fp1) and Right (Fp2)
-	•	Test: paired t-test
-	•	Effect size: Cohen’s dz
-
-Results:
-	•	Left: t(25)=0.977, p=0.338, dz=0.192
-	•	Right: t(25)=0.707, p=0.486, dz=0.139
-
-Script:
-
-```matlab
-run_DTvsCT_LeftRight_barSE_stats.m
-```
-
-These results are reported conservatively and interpreted as hypothesis-generating only.
-
-## 🧠 Step D: Within-task Difficulty Manipulation (CT)
-
-This analysis examines within-task cognitive load progression in CT.
-	•	Trials 1–3: easier
-	•	Trials 4–6: harder
-
-Key result:
-	•	t(25)=1.857, p=0.075, dz=0.364 (trend-level, medium effect)
-
-Scripts:
-
-```matlab
-run_stepD_CT_rep6.m
-```
-
-Outputs include subject tables, statistics, and figures.
-
-🔬 Design Philosophy
-	•	Δ / ΔΔ framework defined a priori
-	•	Minimal preprocessing (band-pass only)
-	•	Clear separation between:
-	•	confirmatory analyses
-	•	exploratory analyses
-	•	Effect sizes always reported
-	•	Suitable for pilot-scale fNIRS studies
+結果（現データ）：
+	•	paired t-test：t(25)=0.928, p=0.362
+	•	effect size：Cohen’s dz=0.182（small）
 
 ⸻
 
-🔬 References
-	•	Tachtsidis & Scholkmann (2016), Neurophotonics
-	•	von Lühmann et al. (2020), Neurophotonics
-	•	Virtanen et al. (2011), J. Biomed. Opt.
-	•	Montgomery (2019), Introduction to Statistical Quality Control
-	•	Bergmann et al. (2024), Bioengineering
+One-sample: ΔΔHbT vs 0（baselineとの差の確認）
+
+「Task−Control差（ΔΔHbT）が0から有意にズレるか」をDT/CTそれぞれで検定。
+
+実行：
+```matlab
+out = run_onesample_deltadelta_vs0_barSE( ...
+  "Csv","data/merged/deltadelta_subject_mean.csv", ...
+  "OutDir","data/merged/figures");
+```
+
+結果（現データ）：
+	•	DT：t(25)=0.499, p=0.622, dz=0.098
+	•	CT：t(25)=-0.413, p=0.683, dz=-0.081
 
 ⸻
 
-✅ Summary
+Exploratory: Laterality (Left / Right) — DT vs CT
 
-This repository provides a transparent, reproducible pipeline
-from raw HOT-2000 CSV files to group-level hemodynamic statistics.
+左右別（Fp1/Fp2相当）の DT vs CT を探索的に確認。
 
-It is designed to support:
-	•	pilot studies
-	•	preregistered follow-up experiments
-	•	integration with behavioral and HRV measures
+実行：
+```matlab
+out = run_DTvsCT_LeftRight_barSE_stats( ...
+  "PairedCsv","data/merged/paired_deltadelta_312.csv", ...
+  "OutDir","data/merged/figures", ...
+  "FigName","stepB_like_DTvsCT_LeftRight.png", ...
+  "ShowPoints",true);
+```
+
+結果（現データ）：
+	•	Left：t(25)=0.977, p=0.338, dz=0.192
+	•	Right：t(25)=0.707, p=0.486, dz=0.139
+
+※左右差は 探索的解析（hypothesis-generating） として報告する。
+
+⸻
+
+Step D: Within-task Difficulty Manipulation (CT)
+
+CT内で難易度が上がるにつれて ΔΔHbT が変化するかを検討する（探索的）。
+
+Difficulty ordering (Orita et al., 2018)
+
+CT項目は先行研究の正答率に基づき易→難の順に配置：
+	•	CT1: 69.7%
+	•	CT2: 66.7%
+	•	CT3: 60.6%
+	•	CT4: 57.6%
+	•	CT5: 51.5%
+	•	CT6: 48.5%
+
+⸻
+
+Step D1: Trials 1–3 vs 4–6（前半 vs 後半）
+
+実行：
+```matlab
+out = run_stepD1_CT_rep6_trials1to3_vs_4to6( ...
+  "PairedRep6Csv","data/merged/paired_deltadelta_312_rep6.csv", ...
+  "OutDir","data/merged/figures");
+```
+
+結果（現データ）：
+	•	t(25)=1.857, p=0.075, dz=0.364
+
+解釈：
+	•	有意水準には達しないが 増加傾向
+	•	効果量は 中程度（medium）
+	•	パイロット研究としては「負荷上昇に反応する可能性」を示す探索的所見
+
+Outputs：
+	•	stepD1_CT_rep6_trials1to3_vs_4to6_deltadeltaLR.png
+	•	stepD1_CT_rep6_trials1to3_vs_4to6_deltadeltaLR_stats.csv
+	•	stepD1_CT_rep6_trials1to3_vs_4to6_deltadeltaLR_subject.csv
+
+⸻
+
+Step D2: CT score × ΔΔHbT（探索的相関）
+
+実行：
+```matlab
+out = run_stepD2_CTscore_x_deltadelta_scatter( ...
+  "MasterXlsx","data/master_subject_table_n26_202503.xlsx", ...
+  "DeltaDeltaCsv","data/merged/deltadelta_subject_mean.csv", ...
+  "OutDir","data/merged/figures");
+```
+
+結果（現データ）：
+	•	Pearson r=0.11, p=0.591, N=26（有意な相関なし）
+
+Outputs：
+	•	stepD2_CTscore_x_deltadeltaLR_scatter.png
+	•	stepD2_CTscore_x_deltadeltaLR_stats.csv
+	•	stepD2_CTscore_x_deltadeltaLR_merged.csv
+
+⸻
+
+Noise correction & GLM (optional)
+
+GLM解析は Δ/ΔΔ 解析と独立に実施可能。
+（本READMEでは最小限の説明に留める）
+
+⸻
+
+References
+	•	Virtanen et al. (2011) J. Biomed. Opt. (ABAMAR)
+	•	Montgomery (2019) Introduction to Statistical Quality Control
+	•	Bergmann et al. (2024) Bioengineering (review)
+	•	Orita et al. (2018) (CT difficulty ordering)
