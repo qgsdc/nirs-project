@@ -194,6 +194,79 @@ run_stepD2_CTscore_x_deltadelta_scatter( ...
 
 	•	r=0.11, p=0.591（ns）
 
+
+---
+
+## 🧠 CT score × WAIS (Core indices)
+<a id="ct-wais"></a>
+
+### Overview
+CT成績（CT score）と WAIS の主要指標（FSIQ / VCI / PRI / WMI / PSI）の関連を、
+Pearson の相関（two-tailed）で検討した（N=26）。
+
+**重要：CT_score の定義（現データ仕様）**
+本データの `ct_test1-3` は「CT1〜CT6の個別得点」ではなく、
+**2問ずつまとめたブロック得点**を表す：
+
+- `ct_test1` = CT1 + CT2  
+- `ct_test2` = CT3 + CT4  
+- `ct_test3` = CT5 + CT6  
+- `CT_score` = `ct_test1 + ct_test2 + ct_test3`（最大 6 点）
+
+※ 将来的に CT1〜CT6 を個別列として追記し、難易度別解析も拡張予定。
+
+---
+
+### Method
+- Test: Pearson correlation (two-tailed)
+- Multiple comparisons: Benjamini–Hochberg FDR（5指標）
+- Effect size: r と r²（説明率）を併記
+- 欠損は pairwise deletion（各相関で利用可能な被験者のみ）
+- `include==1` の被験者のみを解析対象
+
+---
+
+### Reproducibility (script)
+
+```matlab
+out = run_CT_x_WAIS_core_indices( ...
+  "MasterXlsx","data/master_subject_table_n26_202503.xlsx", ...
+  "CTcol","CT_score_sum3", ...
+  "WAIScols",["FSIQ","VCI","PRI","WMI","PSI"], ...
+  "IncludeCol","include", ...
+  "OutDir","data/merged/figures");
+```
+
+Results (current dataset)
+
+| WAIS index | n | r | r² | p (two-tailed) | q (FDR) |
+|-----------:|--:|---:|---:|--------------:|--------:|
+| FSIQ | 26 | 0.439 | 0.19 | 0.024 | 0.061 |
+| VCI  | 26 | 0.374 | 0.14 | 0.059 | 0.099 |
+| PRI  | 26 | 0.327 | 0.11 | 0.102 | 0.128 |
+| WMI  | 26 | 0.491 | 0.24 | 0.011 | 0.054 |
+| PSI  | 26 | 0.061 | <0.01 | 0.767 | 0.767 |
+
+Interpretation (for README / manuscript)
+- FSIQ および WMI は CT score と中程度の正の相関を示した（r ≈ 0.44–0.49）。
+- ただし 5 指標に対する多重比較補正（FDR）後は、FSIQ/WMI ともに q 値が 0.05 をわずかに上回り、
+  統計的には trend-level / suggestive な関連と解釈される。
+- VCI および PRI も正の相関方向を示したが、統計的優位性には達しなかった。
+- PSI と CT score の間には有意な関連は認められなかった。
+- 
+⸻
+
+Outputs
+	•	Figures (scatter):
+	•	data/merged/figures/CT_x_WAIS_FSIQ_scatter.png
+	•	data/merged/figures/CT_x_WAIS_VCI_scatter.png
+	•	data/merged/figures/CT_x_WAIS_PRI_scatter.png
+	•	data/merged/figures/CT_x_WAIS_WMI_scatter.png
+	•	data/merged/figures/CT_x_WAIS_PSI_scatter.png
+	•	Tables:
+	•	data/merged/figures/CT_x_WAIS_correlations_core.csv
+	•	data/merged/figures/CT_x_WAIS_merged.csv
+
 ⸻
 
 References
