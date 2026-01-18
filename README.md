@@ -250,10 +250,10 @@ Results (current dataset)
 Interpretation (for README / manuscript)
 - FSIQ および WMI は CT score と中程度の正の相関を示した（r ≈ 0.44–0.49）。
 - ただし 5 指標に対する多重比較補正（FDR）後は、FSIQ/WMI ともに q 値が 0.05 をわずかに上回り、
-  統計的には trend-level / suggestive な関連と解釈される。
+  統計的には trend-level / suggestive（補正後有意には達しないが、効果量と未補正 p 値を考慮すると
+  将来の検証に値する可能性を示す）な関連と解釈される。
 - VCI および PRI も正の相関方向を示したが、統計的優位性には達しなかった。
 - PSI と CT score の間には有意な関連は認められなかった。
-- 
 ⸻
 
 Outputs
@@ -267,6 +267,11 @@ Outputs
 	•	data/merged/figures/CT_x_WAIS_correlations_core.csv
 	•	data/merged/figures/CT_x_WAIS_merged.csv
 
+### Notes
+- 本解析は CT score（6 問合計）を用いた被験者間相関である。
+- 今後、CT1–CT6 を個別列として追加し、
+  難易度別（early vs late / item-wise）解析を実施予定である。
+  
 ⸻
 
 References
