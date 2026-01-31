@@ -113,7 +113,6 @@ raw_all (Structure)
 	
 
 
-
 | Step | Script / Module | Description (English) | 内容（日本語） |
 |:---:|:----------------|:----------------------|:---------------|
 | **1** | `load_raw_hot2000.m` | Load and structure raw HOT-2000 CSV files | HOT-2000の生CSVを読み込み、時系列構造を作成 |
