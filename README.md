@@ -110,6 +110,24 @@ raw_all (Structure)
     ├── ct1      (Session: CT課題 1回目)
     └── ... (全12セッション)
 
+## Processed Data & Quality Control
+
+`processed/step1/` フォルダには、解析の核となる以下の2つのデータセットが格納されています。
+
+| ファイル名 | ステップ | 内容 | 役割 |
+|:---|:---|:---|:---|
+| `raw_all_312_sessions.mat` | Step 1 | **生データ統合版** | 全312セッションの統合データ。皮膚血流補正(SD3-SD1)済み。 |
+| `filtered_all_312_sessions.mat` | Step 2 | **フィルタ適用版** | 0.01-0.20Hzのバンドパスフィルタ適用後。統計解析に使用。 |
+
+### Visual Quality Control (QC)
+Step 3 (`run_save_all_plots.m`) を実行することで、`filtered_all_312_sessions.mat` に基づく可視化プロットが生成されます。
+
+- **保存先**: `qc/plots/`
+- **画像枚数**: 312枚 (26被験者 × 12セッション)
+- **確認項目**: 
+  - 異常なスパイクノイズ（体動）の有無
+  - 信号の消失（接触不良）
+  - 左右チャネルの極端な不一致
 	
 
 
