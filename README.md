@@ -80,6 +80,29 @@ HOT-2000から出力された生CSVを読み込み、解析用構造体へ変換
 |:---|:---|:---|
 | `run_save_all_plots.m` | プロット生成 | ・全312セッションの波形図をPNG出力<br>・出力先: `qc/plots/` |
 
+## Phase 2: Quantitative Quality Control (数値指標による品質管理)
+
+Step 2で前処理（フィルタリング）されたデータに対し、客観的な統計指標を用いてセッションごとの品質を評価します。
+
+### Step 4: 指標算出 (`run_step4_compute_qc_metrics.m`)
+
+全312セッションのデータをスキャンし、各チャンネルのノイズ混入率や信号強度を算出してCSVに集計します。
+
+#### 算出される主要指標
+| 指標 | 説明 |
+| :--- | :--- |
+| **NoiseFraction** | Z-scoreが ±3.0 を超える異常値の割合 |
+| **Std_L / R** | 左右チャンネルの標準偏差（信号の安定性） |
+| **PulsePower_L / R** | 心拍帯域 (0.5-2.0Hz) のパワー（プローブの接触品質） |
+
+#### 実行方法
+MATLABのコマンドウィンドウで以下を実行してください。実行するとファイル選択画面が開くので、`processed/step2/filtered_all_312_sessions.mat` を選択します。
+
+```matlab
+% script/step4 フォルダに移動して実行
+cd('script/step4');
+run_step4_compute_qc_metrics
+```
 ---
 
 ## 📂 データ構造の定義 (Data Hierarchy)
@@ -106,6 +129,7 @@ HOT-2000から出力された生CSVを読み込み、解析用構造体へ変換
 | | `ct_ctrl1, 2, 3` | CT対照条件（Control） | 3回 |
 
 ---
+
 
 ## ✅ Current Status
 - **Last Updated:** 2026-01-31
