@@ -97,18 +97,24 @@ Output (Master Data)
 ログ: analysis_log_step1.txt （読み込み詳細を記録）
 
 4. データ構造の定義 (Data Hierarchy)
-保存された raw_all_312_sessions.mat は以下の階層構造を持ち、解析の全行程で参照されます。
+保存された raw_all_312_sessions.mat および filtered_all_312_sessions.mat は、以下の階層構造を持つ構造体 raw_all として格納されています。
 
-raw_all (Structure)
-└── [subject_id] (例: nakashima)
-    ├── dt1 (Session: DT課題 1回目)
-    │   ├── data  : [Time x 2] (Col1: Left HbT, Col2: Right HbT) ※SD減算済み
-    │   ├── pulse : [Time x 1] (Estimated pulse rate)
-    │   ├── time  : [Time x 1] (Headset time)
-    │   └── mark  : [Time x 1] (Mark列の生データ)
-    ├── dt_ctrl1 (Session: DTコントロール 1回目)
-    ├── ct1      (Session: CT課題 1回目)
-    └── ... (全12セッション)
+レベル,変数名 / フィールド,内容,型・サイズ
+第1階層,raw_all,データ全体を保持する最上位構造体,struct
+第2階層,.[subject_id],各被験者のID (例: nakashima),struct
+第3階層,.[session_id],"各セッション (例: dt1, dt_ctrl1)",struct
+第4階層,.data,HbT 変化量 (L/R) ※SD減算済み,double [Time x 2]
+,.pulse,推定心拍数 (Estimated pulse rate),double [Time x 1]
+,.time,ヘッドセット内部時間 (秒),double [Time x 1]
+,.mark,実験中に打たれたマーカー情報,double [Time x 1]
+
+セッション名の対応表 (Total: 12 Sessions per Subject)
+各被験者フォルダ内のCSVファイルは、読み込み時に以下のIDへマッピングされます。
+課題区分,セッションID (構造体内の名称),内容,試行回数
+二重課題 (DT),"dt1, dt2, dt3",創造性課題 (DT) 実行中,3回
+,"dt_ctrl1, dt_ctrl2, dt_ctrl3",DTの対照条件 (Control),3回
+単一課題 (CT),"ct1, ct2, ct3",創造性課題 (CT) 実行中,3回
+,"ct_ctrl1, ct_ctrl2, ct_ctrl3",CTの対照条件 (Control),3回
 
 ## Processed Data & Quality Control
 
@@ -128,6 +134,8 @@ Step 3 (`run_save_all_plots.m`) を実行することで、`filtered_all_312_ses
   - 異常なスパイクノイズ（体動）の有無
   - 信号の消失（接触不良）
   - 左右チャネルの極端な不一致
+
+Current Status: 2026-01-31 時点で全312セッションの読み込み・フィルタリング・プロット生成が正常終了。qc/plots/ に全数出力済みであることを確認。
 	
 
 
