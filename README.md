@@ -171,7 +171,28 @@ run_step6_final
   - `data`: 全ヘモグロビン変化量（HbT）。2列のデータ（[1列目: Left, 2列目: Right]）
   - `pulse`: 心拍データ
   - `mark`: マーカー情報（cell配列）
-  - 
+
+### Step 7: 統計用集計表の作成 (`run_step7_prepare_table.m`)
+
+クリーンアップ済みデータ（Step 6 成果物）から、統計解析ソフト（R, SPSS, Python等）で即座に使用できる最終的なデータセット（CSV）を書き出します。
+
+#### 算出ロジック：全Rest区間基準補正 (Baseline Correction)
+被験者内およびセッション間のベースライン変動を抑え、課題による純粋な変化量を抽出するため、以下の計算を適用しています。
+
+* **基準値の定義**: 各セッションにおける全ての「Rest（安静）」区間のデータポイントを抽出し、その平均値を $Baseline = 0$ と定義します。
+* **変化量の算出**: 「Task（課題）」区間の平均値から上記 $Baseline$ を差し引くことで、**相対的なHbT変化量（$\Delta HbT$）**を算出します。
+
+#### 実行方法
+MATLABのコマンドウィンドウにて以下を実行します。
+
+```matlab
+% プロジェクトルートに移動
+cd('/Users/keisaruwatari/Documents/nirs-project/hot2000/hot2000_analysis');
+```
+
+% 集計スクリプトの実行
+run('script/step7/run_step7_prepare_table.m');
+
 ---
 
 ## 📂 データ構造の定義 (Data Hierarchy)
