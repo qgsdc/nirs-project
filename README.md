@@ -116,6 +116,13 @@ Output (Master Data)
 単一課題 (CT),"ct1, ct2, ct3",創造性課題 (CT) 実行中,3回
 ,"ct_ctrl1, ct_ctrl2, ct_ctrl3",CTの対照条件 (Control),3回
 
+行列データの詳細 (.data)
+Column 1: 左チャネルの HbT 変化量 (Left Channel)
+
+Column 2: 右チャネルの HbT 変化量 (Right Channel)
+
+※ raw_all_312_sessions.mat では生データ、filtered_all_312_sessions.mat ではバンドパスフィルタ適用後の値が格納されています。
+
 ## Processed Data & Quality Control
 
 `processed/step1/` フォルダには、解析の核となる以下の2つのデータセットが格納されています。
