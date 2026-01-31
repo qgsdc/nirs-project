@@ -58,6 +58,9 @@ rehash; clear functions;
 
 ## 🧠 Analysis Flow (fNIRS Pre-processing)
 
+## Phase 1: Basic Processing & Visual QC (基本処理と目視検品)
+解析の土台作りと、人の目による波形チェックを行います。
+
 ### Step 1: Data Structuring (生データの統合)
 HOT-2000から出力された生CSVを読み込み、解析用構造体へ変換します。
 
