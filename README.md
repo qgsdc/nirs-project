@@ -100,14 +100,13 @@ Output (Master Data)
 保存された raw_all_312_sessions.mat および filtered_all_312_sessions.mat は、以下の階層構造を持つ構造体 raw_all として格納されています。
 
 レベル,変数名 / フィールド,内容,型・サイズ
-第1階層,raw_all,データ全体を保持する最上位構造体,struct
-第2階層,.[subject_id],各被験者の個人ID (例: nakashima),struct
-第3階層,.[session_id],"各セッション (例: dt1, dt_ctrl1)",struct
-第4階層,.data,HbT 変化量 (L/R) ※SD減算済み,double [Time x 2]
-,.pulse,推定心拍数 (Estimated pulse rate),double [Time x 1]
-,.time,ヘッドセット内部時間 (秒),double [Time x 1]
-,.mark,実験中に打たれたマーカー情報,double [Time x 1]
-
+第1階層,raw_all,全体構造体,・全26名のデータを保持する構造体
+第2階層,.[subject_id],被験者ID,・個別被験者（例：nakashima）のフィールド
+第3階層,.[session_id],セッションID,"・各試行（例：dt1, dt_ctrl1）のデータ群"
+第4階層,.data,HbT 変化量,・[Time x 2] 行列 (1:左 / 2:右)・HbT=SD3−SD1 済み
+第4階層,.pulse,心拍データ,・[Time x 1] 列ベクトル・推定心拍数（Estimated pulse rate）
+第4階層,.time,時間軸,・[Time x 1] 列ベクトル・ヘッドセット内部の経過時間（秒）
+第4階層,.mark,マーカー,・[Time x 1] 列ベクトル・Event Marker（課題の開始・終了合図）
 
 セッション名の対応表 (Total: 12 Sessions per Subject)
 各被験者フォルダ内のCSVファイルは、読み込み時に以下のIDへマッピングされます。
