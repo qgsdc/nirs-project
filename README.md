@@ -122,7 +122,7 @@ Step 4で算出された指標に基づき、全データから統計的な外�
 % script/step5 フォルダに移動して実行
 cd('script/step5');
 run_step5_classify_noise
-
+```
 ---
 
 出力結果
