@@ -164,15 +164,14 @@ run_step6_final
 
 このファイルに格納されている clean_data 構造体が、次フェーズ（統計解析・LMM）の正味の入力データとなります。
 
-データ構造
-保存された final_clean_data.mat は以下の階層構造を持ちます。
-
-clean_data.(SubjectID).(SessionID)
-
-times: 時間軸（秒）
-
-HbT: 全ヘモグロビン変化量（HOT-2000の単一波長計測に基づく）
-
+#### データ構造
+保存された `final_clean_data.mat` は以下の階層構造を持ちます。
+- `clean_data.(SubjectID).(SessionID)`
+  - `time`: 時間軸（秒）
+  - `data`: 全ヘモグロビン変化量（HbT）。2列のデータ（[1列目: Left, 2列目: Right]）
+  - `pulse`: 心拍データ
+  - `mark`: マーカー情報（cell配列）
+  - 
 ---
 
 ## 📂 データ構造の定義 (Data Hierarchy)
