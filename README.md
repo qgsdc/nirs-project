@@ -96,25 +96,28 @@ Output (Master Data)
 
 ログ: analysis_log_step1.txt （読み込み詳細を記録）
 
-4. データ構造の定義 (Data Hierarchy)
-保存された raw_all_312_sessions.mat および filtered_all_312_sessions.mat は、以下の階層構造を持つ構造体 raw_all として格納されています。
+### 4. データ構造の定義 (Data Hierarchy)
+保存された `raw_all_312_sessions.mat` および `filtered_all_312_sessions.mat` は、以下の階層構造を持つ構造体 `raw_all` として格納されています。
 
-レベル,変数名 / フィールド,内容,型・サイズ
-第1階層,raw_all,全体構造体,・全26名のデータを保持する構造体
-第2階層,.[subject_id],被験者ID,・個別被験者（例：nakashima）のフィールド
-第3階層,.[session_id],セッションID,"・各試行（例：dt1, dt_ctrl1）のデータ群"
-第4階層,.data,HbT 変化量,・[Time x 2] 行列 (1:左 / 2:右)・HbT=SD3−SD1 済み
-第4階層,.pulse,心拍データ,・[Time x 1] 列ベクトル・推定心拍数（Estimated pulse rate）
-第4階層,.time,時間軸,・[Time x 1] 列ベクトル・ヘッドセット内部の経過時間（秒）
-第4階層,.mark,マーカー,・[Time x 1] 列ベクトル・Event Marker（課題の開始・終了合図）
+| レベル | 変数名 / フィールド | 内容 | 型・サイズ |
+|:---|:---|:---|:---|
+| 第1階層 | `raw_all` | **全体構造体** | ・全26名のデータを保持する構造体 |
+| 第2階層 | `.[subject_id]` | **被験者ID** | ・個別被験者（例：`nakashima`）のフィールド |
+| 第3階層 | `.[session_id]` | **セッションID** | ・各試行（例：`dt1, dt_ctrl1`）のデータ群 |
+| 第4階層 | `.data` | **HbT 変化量** | ・[Time x 2] 行列 (1:左 / 2:右)<br>・$HbT = SD3 - SD1$ 済み |
+| 第4階層 | `.pulse` | **心拍データ** | ・[Time x 1] 列ベクトル<br>・推定心拍数（Estimated pulse rate） |
+| 第4階層 | `.time` | **時間軸** | ・[Time x 1] 列ベクトル<br>・ヘッドセット内部の経過時間（秒） |
+| 第4階層 | `.mark` | **マーカー** | ・[Time x 1] 列ベクトル<br>・Event Marker（課題の開始・終了合図） |
 
-セッション名の対応表 (Total: 12 Sessions per Subject)
+#### セッション名のマッピング規則 (Total: 12 Sessions per Subject)
 各被験者フォルダ内のCSVファイルは、読み込み時に以下のIDへマッピングされます。
-課題区分,セッションID (構造体内の名称),内容,試行回数
-二重課題 (DT),"dt1, dt2, dt3",創造性課題 (DT) 実行中,3回
-,"dt_ctrl1, dt_ctrl2, dt_ctrl3",DTの対照条件 (Control),3回
-単一課題 (CT),"ct1, ct2, ct3",創造性課題 (CT) 実行中,3回
-,"ct_ctrl1, ct_ctrl2, ct_ctrl3",CTの対照条件 (Control),3回
+
+| 課題区分 | セッション名 | 試行内容 | 回数 |
+|:---|:---|:---|:---|
+| **二重課題 (DT)** | `dt1, dt2, dt3` | ・創造性課題（DT）の実行データ | 3回 |
+| | `dt_ctrl1, 2, 3` | ・DTの対照条件（Control）データ | 3回 |
+| **単一課題 (CT)** | `ct1, ct2, ct3` | ・創造性課題（CT）の実行データ | 3回 |
+| | `ct_ctrl1, 2, 3` | ・CTの対照条件（Control）データ | 3回 |
 
 行列データの詳細 (.data)
 Column 1: 左チャネルの HbT 変化量 (Left Channel)
