@@ -56,95 +56,61 @@ addpath(genpath('scripts'));
 rehash; clear functions;
 ```
 
-## 🧠 Analysis Flow
+## 🧠 Analysis Flow (fNIRS Pre-processing)
 
-
-# fNIRS Data Analysis: Step 1 (Data Structuring)
-
-HOT-2000から出力された生データを読み込み、解析に適した構造体に変換して保存する工程です。
-
-## 1. 使用ファイル (MATLAB Scripts)
+### Step 1: Data Structuring (生データの統合)
+HOT-2000から出力された生CSVを読み込み、解析用構造体へ変換します。
 
 | ファイル名 | 役割 | 主な処理内容 |
 |:---|:---|:---|
-| `load_raw_hot2000_v2.m` | **読み込み関数** | ・生CSVのヘッダー（14行目付近）を自動特定<br>・$HbT = SD3 - SD1$ による皮膚血流除去（SD減算）を実施<br>・5列目 `Estimated pulse rate`（心拍データ）の抽出 |
-| `run_step1_load_and_save.m` | **実行スクリプト** | ・全26名の個別フォルダを自動スキャン<br>・全312セッション（12セッション/人）を特定<br>・被験者ごとに構造化し一括保存 |
+| `load_raw_hot2000_v2.m` | 読み込み関数 | ・$HbT = SD3 - SD1$ による皮膚血流除去（SD減算）<br>・心拍データ（Estimated pulse rate）の抽出 |
+| `run_step1_load_and_save.m` | 実行スクリプト | ・全26名×12セッション（計312ファイル）を自動スキャン<br>・`raw_all_312_sessions.mat` として一括保存 |
 
-## 2. 実行コマンド
+### Step 2: Artifact Filtering (フィルタリング)
+生理的ノイズ（呼吸・血圧変動等）を除去するための前処理を行います。
 
-再現性を確保するため、以下の手順で実行しました。
+| ファイル名 | 役割 | 主な処理内容 |
+|:---|:---|:---|
+| `run_step2_apply_filter.m` | フィルタ適用 | ・Band-pass filter (0.01 - 0.20 Hz) の適用<br>・`filtered_all_312_sessions.mat` の作成 |
 
-```matlab
-% フォルダ構成の更新とパスの追加
-addpath(genpath('script')); 
-rehash;
-```
+### Step 3: Visual Inspection (目視QC)
+全データの波形を画像化し、品質を確認します。
 
-% Step 1 の実行（データの読み込み・加工・保存）
-run_step1_load_and_save;
+| ファイル名 | 役割 | 主な処理内容 |
+|:---|:---|:---|
+| `run_save_all_plots.m` | プロット生成 | ・全312セッションの波形図をPNG出力<br>・出力先: `qc/plots/` |
 
-3. 入力と出力 (I/O)
-Input (Raw Data)
-場所: ../raw_data/group_a/ および ../raw_data/group_b/
+---
 
-形式: 被験者別フォルダ（例: 20250331_nakashima/）内に格納されたCSVファイル群。
+### Step 4: データ構造の定義 (Data Hierarchy)
 
-Output (Master Data)
-場所: ../processed/
-
-ファイル名: raw_all_312_sessions.mat
-
-ログ: analysis_log_step1.txt （読み込み詳細を記録）
-
-### 4. データ構造の定義 (Data Hierarchy)
-保存された `raw_all_312_sessions.mat` および `filtered_all_312_sessions.mat` は、以下の階層構造を持つ構造体 `raw_all` として格納されています。
+解析に使用する `.mat` ファイルは以下の階層構造を持ちます。
 
 | レベル | 変数名 / フィールド | 内容 | 型・サイズ |
 |:---|:---|:---|:---|
 | 第1階層 | `raw_all` | **全体構造体** | ・全26名のデータを保持する構造体 |
 | 第2階層 | `.[subject_id]` | **被験者ID** | ・個別被験者（例：`nakashima`）のフィールド |
 | 第3階層 | `.[session_id]` | **セッションID** | ・各試行（例：`dt1, dt_ctrl1`）のデータ群 |
-| 第4階層 | `.data` | **HbT 変化量** | ・[Time x 2] 行列 (1:左 / 2:右)<br>・$HbT = SD3 - SD1$ 済み |
-| 第4階層 | `.pulse` | **心拍データ** | ・[Time x 1] 列ベクトル<br>・推定心拍数（Estimated pulse rate） |
-| 第4階層 | `.time` | **時間軸** | ・[Time x 1] 列ベクトル<br>・ヘッドセット内部の経過時間（秒） |
-| 第4階層 | `.mark` | **マーカー** | ・[Time x 1] 列ベクトル<br>・Event Marker（課題の開始・終了合図） |
+| 第4階層 | `.data` | **HbT 変化量** | ・[Time x 2] 行列 (1:左 / 2:右) |
+| 第4階層 | `.pulse` | **心拍データ** | ・[Time x 1] 列ベクトル |
+| 第4階層 | `.time` | **時間軸** | ・[Time x 1] 列ベクトル |
+| 第4階層 | `.mark` | **マーカー** | ・[Time x 1] 列ベクトル |
 
-#### セッション名のマッピング規則 (Total: 12 Sessions per Subject)
+#### セッション名のマッピング規則 (12 Sessions / Subject)
 
-| 課題区分 | セッション名 | 試行内容 | 回数 |
+| 課題区分 | セッション名 | 内容 | 試行数 |
 |:---|:---|:---|:---|
-| **二重課題 (DT)** | `dt1, dt2, dt3` | ・創造性課題（DT）の実行データ | 3回 |
-| | `dt_ctrl1, 2, 3` | ・DTの対照条件（Control）データ | 3回 |
-| **単一課題 (CT)** | `ct1, ct2, ct3` | ・創造性課題（CT）の実行データ | 3回 |
-| | `ct_ctrl1, 2, 3` | ・CTの対照条件（Control）データ | 3回 |
+| **二重課題 (DT)** | `dt1, 2, 3` | 創造性課題（DT）実行中 | 3回 |
+| | `dt_ctrl1, 2, 3` | DT対照条件（Control） | 3回 |
+| **単一課題 (CT)** | `ct1, 2, 3` | 創造性課題（CT）実行中 | 3回 |
+| | `ct_ctrl1, 2, 3` | CT対照条件（Control） | 3回 |
 
-行列データの詳細 (.data)
-Column 1: 左チャネルの HbT 変化量 (Left Channel)
+---
 
-Column 2: 右チャネルの HbT 変化量 (Right Channel)
-
-※ raw_all_312_sessions.mat では生データ、filtered_all_312_sessions.mat ではバンドパスフィルタ適用後の値が格納されています。
-
-## Processed Data & Quality Control
-
-`processed/step1/` フォルダには、解析の核となる以下の2つのデータセットが格納されています。
-
-| ファイル名 | ステップ | 内容 | 役割 |
-|:---|:---|:---|:---|
-| `raw_all_312_sessions.mat` | Step 1 | **生データ統合版** | 全312セッションの統合データ。皮膚血流補正(SD3-SD1)済み。 |
-| `filtered_all_312_sessions.mat` | Step 2 | **フィルタ適用版** | 0.01-0.20Hzのバンドパスフィルタ適用後。統計解析に使用。 |
-
-### Visual Quality Control (QC)
-Step 3 (`run_save_all_plots.m`) を実行することで、`filtered_all_312_sessions.mat` に基づく可視化プロットが生成されます。
-
-- **保存先**: `qc/plots/`
-- **画像枚数**: 312枚 (26被験者 × 12セッション)
-- **確認項目**: 
-  - 異常なスパイクノイズ（体動）の有無
-  - 信号の消失（接触不良）
-  - 左右チャネルの極端な不一致
-
-Current Status: 2026-01-31 時点で全312セッションの読み込み・フィルタリング・プロット生成が正常終了。qc/plots/ に全数出力済みであることを確認。
+## ✅ Current Status
+- **Last Updated:** 2026-01-31
+- **Completion:** Step 1, 2, 3 完了
+- **Records:** 全312セッションの処理済みデータおよびプロット（`qc/plots/`）の生成を確認。
 	
 
 
