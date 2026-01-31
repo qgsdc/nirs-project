@@ -101,7 +101,7 @@ Output (Master Data)
 
 レベル,変数名 / フィールド,内容,型・サイズ
 第1階層,raw_all,データ全体を保持する最上位構造体,struct
-第2階層,.[subject_id],各被験者のID (例: nakashima),struct
+第2階層,.[subject_id],各被験者の個人ID (例: nakashima),struct
 第3階層,.[session_id],"各セッション (例: dt1, dt_ctrl1)",struct
 第4階層,.data,HbT 変化量 (L/R) ※SD減算済み,double [Time x 2]
 ,.pulse,推定心拍数 (Estimated pulse rate),double [Time x 1]
