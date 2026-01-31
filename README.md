@@ -106,7 +106,30 @@ MATLABのコマンドウィンドウで以下を実行してください。実�
 cd('script/step4');
 run_step4_compute_qc_metrics
 ```
+
+### Step 5: 自動ノイズ判定 (`run_step5_classify_noise.m`)
+
+Step 4で算出された指標に基づき、全データから統計的な外れ値（Z-score ±3.0）を抽出して「Bad」判定を行います。
+
+#### 判定基準
+以下の指標のいずれかで Z-score > 3.0 を記録したセッションを自動除外対象とします。
+- **NoiseFraction**: 突発的なスパイクノイズの頻度
+- **Std_L/R**: 異常な信号振幅（プローブの浮き等）
+- **PulsePower_L/R**: 心拍成分の欠如（接触不良）
+
+#### 実行方法
+```matlab
+% script/step5 フォルダに移動して実行
+cd('script/step5');
+run_step5_classify_noise
 ---
+
+出力結果
+processed/step4/qc_classification_results.csv: 各セッションの判定結果（Normal/Bad）と除外理由
+
+qc/qc_scatter_plot/qc_scatter_plot.png: 判定結果を可視化した散布図
+
+Note: 現在のデータセットでは 312 セッション中 19 セッション が除外対象として特定されています。
 
 ## 📂 データ構造の定義 (Data Hierarchy)
 
