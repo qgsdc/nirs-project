@@ -157,6 +157,22 @@ cd('script/step6');
 % クリーンアップの実行
 run_step6_final
 
+出力結果
+最終保持数: 25名（計 281 セッション）
+
+出力ファイル: processed/step6/final_clean_data.mat
+
+※ このファイルに格納されている clean_data 構造体が、次フェーズの統計解析（LMM等）における正味の入力データとなります。
+
+データ構造の確認
+保存された final_clean_data.mat は以下の階層構造を持っています。
+
+clean_data.(SubjectID).(SessionID)
+
+times: 時間軸
+
+HbO / HbR / HbT: 各ヘモグロビン濃度の変化量
+
 ---
 
 ## 📂 データ構造の定義 (Data Hierarchy)
